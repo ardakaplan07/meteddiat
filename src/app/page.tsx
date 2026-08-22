@@ -22,7 +22,7 @@ export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
   // UI Kontrolleri
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Yeni mobil menü state'i
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
@@ -188,19 +188,25 @@ export default function Home() {
     else alert("Yetki değiştirilirken hata oluştu!");
   };
 
-  // --- DASHBOARD (GÖREV VE SİSTEM) İŞLEMLERİ ---
+  // --- DASHBOARD (GÖREV) İŞLEMLERİ ---
   const handleAddTask = async () => {
     if (!taskName || !taskAssignee) return alert("Lütfen görev adı ve sorumlu kişi girin.");
 
-    await supabase.from('tasks').insert([{ 
+    // BURADA YENİ HATA YAKALAYICI VAR
+    const { error } = await supabase.from('tasks').insert([{ 
       name: taskName, 
       assignee: taskAssignee, 
       status: taskStatus, 
       is_completed: false 
     }]);
 
-    setTaskName(""); setTaskAssignee("");
-    fetchTasks();
+    if (error) {
+      console.error("Görev Eklenemedi: ", error);
+      alert("Görev Buluta Eklenemedi! Lütfen Supabase'de 'tasks' tablosunun RLS ayarının kapalı olduğundan emin olun.");
+    } else {
+      setTaskName(""); setTaskAssignee("");
+      fetchTasks();
+    }
   };
 
   const completeTask = async (taskId: number) => {
@@ -211,6 +217,7 @@ export default function Home() {
     fetchTasks();
   };
 
+  // --- SİSTEM DURUMU (YENİ EKLENEN SİL VE GÜNCELLE FONKSİYONLARI) ---
   const handleAddSystemStatus = async () => {
     if (!sysNameInput || !sysStatusInput) return;
     
@@ -218,6 +225,22 @@ export default function Home() {
     
     setSysNameInput(""); setSysStatusInput("");
     fetchSystemStatus();
+  };
+
+  const deleteSystemStatus = async (id: number) => {
+    if(!confirm("Bu sistemi silmek istediğinize emin misiniz?")) return;
+    const { error } = await supabase.from('system_status').delete().eq('id', id);
+    if (!error) fetchSystemStatus();
+    else alert("Silinirken bir hata oluştu!");
+  };
+
+  const editSystemStatus = async (sys: any) => {
+    const newStatus = prompt(`"${sys.name}" için yeni durumu girin:`, sys.status);
+    if (newStatus && newStatus !== sys.status) {
+      const { error } = await supabase.from('system_status').update({ status: newStatus }).eq('id', sys.id);
+      if (!error) fetchSystemStatus();
+      else alert("Güncellenirken bir hata oluştu!");
+    }
   };
 
   const handleHeroMouseMove = (e: MouseEvent<HTMLElement>) => {
@@ -486,7 +509,7 @@ export default function Home() {
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
-            <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div className="admin-header">
               <div>
                 <h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2>
                 <p>Ağ Yöneticisi: {currentUser}</p>
@@ -554,9 +577,16 @@ export default function Home() {
               
               <div style={{ marginTop: "20px" }}>
                 {systemStatusDB.map((sys, idx) => (
-                  <div key={idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                    <span>{sys.name}</span>
-                    <div><span className="pulse-dot"></span> {sys.status}</div>
+                  <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
+                    <div>
+                      <span style={{ color: '#fff' }}>{sys.name}</span>
+                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
+                    </div>
+                    {/* YENİ EKLENEN SİL VE DÜZENLE BUTONLARI */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
+                      <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
+                    </div>
                   </div>
                 ))}
               </div>
