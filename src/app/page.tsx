@@ -54,11 +54,6 @@ export default function Home() {
   const [sysStatusInput, setSysStatusInput] = useState("");
 
   // --- EFEKTLER (useEffect) ---
-  
-  useEffect(() => {
-    setTasksDB(JSON.parse(localStorage.getItem("meteddiat_tasks") || "[]"));
-    setSystemStatusDB(JSON.parse(localStorage.getItem("meteddiat_sys_status") || "[]"));
-  }, []);
 
   useEffect(() => {
     let i = 0;
@@ -79,7 +74,19 @@ export default function Home() {
   }, [isAdminPanelOpen]);
 
   useEffect(() => {
-    if (isDashboardOpen) fetchApprovedUsers();
+    if (isDashboardOpen) {
+      fetchApprovedUsers();
+      fetchTasks();
+      fetchSystemStatus();
+      
+      // Anlık güncelleme için verileri her 5 saniyede bir tazele
+      const interval = setInterval(() => {
+        fetchApprovedUsers();
+        fetchTasks();
+        fetchSystemStatus();
+      }, 5000);
+      return () => clearInterval(interval);
+    }
   }, [isDashboardOpen]);
 
 
@@ -95,6 +102,16 @@ export default function Home() {
     if (!error && data) setApprovedUsers(data);
   };
 
+  const fetchTasks = async () => {
+    const { data } = await supabase.from('tasks').select('*');
+    if (data) setTasksDB(data);
+  };
+
+  const fetchSystemStatus = async () => {
+    const { data } = await supabase.from('system_status').select('*');
+    if (data) setSystemStatusDB(data);
+  };
+
   // --- YETKİLENDİRME (AUTH) FONKSİYONLARI ---
 
   const handleRegister = async (e: FormEvent) => {
@@ -106,7 +123,7 @@ export default function Home() {
 
     const { error } = await supabase
       .from('users')
-      .insert([{ name: regName, email: regEmail, password: regPass, status: 'pending' }]);
+      .insert([{ name: regName, email: regEmail, password: regPass, status: 'pending', is_online: false }]);
 
     if (error) {
       setAuthMsg({ text: "Bir hata oluştu veya bu e-posta zaten sistemde kayıtlı!", type: "error" });
@@ -144,6 +161,9 @@ export default function Home() {
     if (user.status === 'pending') {
       setAuthMsg({ text: "Erişim Reddedildi: Hesabınız henüz Admin tarafından onaylanmamış.", type: "error" });
     } else if (user.status === 'approved') {
+      // Giriş yapıldığında is_online durumunu true yap
+      await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
+      
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
       setTimeout(() => {
         setIsLoginModalOpen(false);
@@ -151,6 +171,16 @@ export default function Home() {
         setLoginEmail(""); setLoginPass(""); setAuthMsg({ text: "", type: "" });
       }, 1500);
     }
+  };
+
+  const handleLogout = async () => {
+    // Admin harici biriyse is_online durumunu false yap
+    if (currentUser !== "Arda Kaplan (Admin)") {
+      await supabase.from('users').update({ is_online: false }).eq('name', currentUser);
+    }
+    setIsDashboardOpen(false);
+    setIsAdminPanelOpen(false);
+    setCurrentUser("");
   };
 
   // --- ADMİN İŞLEMLERİ ---
@@ -161,38 +191,35 @@ export default function Home() {
   };
 
   // --- DASHBOARD (GÖREV VE SİSTEM) İŞLEMLERİ ---
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (!taskName || !taskAssignee) return alert("Lütfen görev adı ve sorumlu kişi girin.");
 
-    const newTask = {
-      id: Date.now(), name: taskName, assignee: taskAssignee,
-      status: taskStatus, isCompleted: false, dateCompleted: null
-    };
-    
-    const updatedTasks = [...tasksDB, newTask];
-    setTasksDB(updatedTasks);
-    localStorage.setItem('meteddiat_tasks', JSON.stringify(updatedTasks));
+    await supabase.from('tasks').insert([{ 
+      name: taskName, 
+      assignee: taskAssignee, 
+      status: taskStatus, 
+      is_completed: false 
+    }]);
+
     setTaskName(""); setTaskAssignee("");
+    fetchTasks();
   };
 
-  const completeTask = (taskId: number) => {
-    const updatedTasks = tasksDB.map(t => {
-      if (t.id === taskId) {
-        const d = new Date();
-        return { ...t, isCompleted: true, dateCompleted: `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}` };
-      }
-      return t;
-    });
-    setTasksDB(updatedTasks);
-    localStorage.setItem('meteddiat_tasks', JSON.stringify(updatedTasks));
+  const completeTask = async (taskId: number) => {
+    const d = new Date();
+    const dateStr = `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+    
+    await supabase.from('tasks').update({ is_completed: true, date_completed: dateStr }).eq('id', taskId);
+    fetchTasks();
   };
 
-  const handleAddSystemStatus = () => {
+  const handleAddSystemStatus = async () => {
     if (!sysNameInput || !sysStatusInput) return;
-    const newSys = [...systemStatusDB, { name: sysNameInput, status: sysStatusInput }];
-    setSystemStatusDB(newSys);
-    localStorage.setItem('meteddiat_sys_status', JSON.stringify(newSys));
+    
+    await supabase.from('system_status').insert([{ name: sysNameInput, status: sysStatusInput }]);
+    
     setSysNameInput(""); setSysStatusInput("");
+    fetchSystemStatus();
   };
 
   const handleHeroMouseMove = (e: MouseEvent<HTMLElement>) => {
@@ -460,7 +487,7 @@ export default function Home() {
                 <h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2>
                 <p>Ağ Yöneticisi: {currentUser}</p>
               </div>
-              <button className="btn-outline" onClick={() => setIsAdminPanelOpen(false)}>Sistemden Çık</button>
+              <button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button>
             </div>
             
             <div className="admin-content">
@@ -507,7 +534,7 @@ export default function Home() {
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
             <div className="dash-brand"><i className="fa-solid fa-terminal"></i> ROOT // KOMUTA MERKEZİ</div>
-            <button className="btn-outline" onClick={() => setIsDashboardOpen(false)}>Ağdan Çık (Logout)</button>
+            <button className="btn-outline" onClick={handleLogout}>Ağdan Çık (Logout)</button>
           </div>
           
           <div className="dash-grid" style={{ padding: "20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "1400px", margin: "0 auto" }}>
@@ -536,15 +563,12 @@ export default function Home() {
                 <span>Arda Kaplan (Admin)</span>
                 <span className="text-green">[{currentUser.includes("Admin") ? "Şu An Aktif" : "Yetkili"}]</span>
               </div>
-              {approvedUsers.map((user, idx) => {
-                const isOnline = user.name === currentUser;
-                return (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
-                    <span>{user.name}</span>
-                    <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
-                  </div>
-                );
-              })}
+              {approvedUsers.map((user, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
+                  <span>{user.name}</span>
+                  <span style={{ color: user.is_online ? '#10b981' : '#666' }}>[{user.is_online ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
+                </div>
+              ))}
             </div>
 
             {/* Görev Ekleme ve Listeler */}
@@ -564,7 +588,7 @@ export default function Home() {
               <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
                 <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Durum</th><th>İşlem</th></tr></thead>
                 <tbody>
-                  {tasksDB.filter(t => !t.isCompleted).map(task => (
+                  {tasksDB.filter(t => !t.is_completed).map(task => (
                     <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
                       <td style={{ padding: "10px 0" }}>{task.name}</td>
                       <td>{task.assignee}</td>
@@ -572,7 +596,7 @@ export default function Home() {
                       <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
                     </tr>
                   ))}
-                  {tasksDB.filter(t => !t.isCompleted).length === 0 && <tr><td colSpan={4} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
+                  {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={4} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
                 </tbody>
               </table>
               
@@ -580,14 +604,14 @@ export default function Home() {
               <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
                 <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Tarih</th></tr></thead>
                 <tbody>
-                  {tasksDB.filter(t => t.isCompleted).map(task => (
+                  {tasksDB.filter(t => t.is_completed).map(task => (
                     <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
                       <td style={{ padding: "10px 0", textDecoration: 'line-through', color: '#666' }}>{task.name}</td>
                       <td>{task.assignee}</td>
-                      <td className="text-green">{task.dateCompleted}</td>
+                      <td className="text-green">{task.date_completed}</td>
                     </tr>
                   ))}
-                  {tasksDB.filter(t => t.isCompleted).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
+                  {tasksDB.filter(t => t.is_completed).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
                 </tbody>
               </table>
             </div>
