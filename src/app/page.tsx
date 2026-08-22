@@ -88,6 +88,20 @@ export default function Home() {
       return () => clearInterval(interval);
     }
   }, [isDashboardOpen]);
+  // Sekme veya tarayıcı direkt kapatılırsa otomatik çevrimdışı yap
+  useEffect(() => {
+    const handleTabClose = () => {
+      if (currentUser && currentUser !== "Arda Kaplan (Admin)") {
+        // Tarayıcı kapanırken buluta 'çevrimdışı' sinyali gönder (Senkron çalışması için .then() kullanıyoruz)
+        supabase.from('users').update({ is_online: false }).eq('name', currentUser).then();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleTabClose);
+    return () => {
+      window.removeEventListener('beforeunload', handleTabClose);
+    };
+  }, [currentUser]);
 
 
   // --- SUPABASE VERİ ÇEKME FONKSİYONLARI ---
