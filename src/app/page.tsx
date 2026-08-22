@@ -192,8 +192,8 @@ export default function Home() {
   const handleAddTask = async () => {
     if (!taskName || !taskAssignee) return alert("Lütfen görev adı ve sorumlu kişi girin.");
 
-    // BURADA YENİ HATA YAKALAYICI VAR
     const { error } = await supabase.from('tasks').insert([{ 
+      id: Date.now(), // <-- ÇÖZÜM BURADA: Manuel ID gönderiyoruz
       name: taskName, 
       assignee: taskAssignee, 
       status: taskStatus, 
@@ -202,7 +202,7 @@ export default function Home() {
 
     if (error) {
       console.error("Görev Eklenemedi: ", error);
-      alert("Görev Buluta Eklenemedi! Lütfen Supabase'de 'tasks' tablosunun RLS ayarının kapalı olduğundan emin olun.");
+      alert("Görev Buluta Eklenemedi! Hata detayı konsolda.");
     } else {
       setTaskName(""); setTaskAssignee("");
       fetchTasks();
@@ -217,14 +217,23 @@ export default function Home() {
     fetchTasks();
   };
 
-  // --- SİSTEM DURUMU (YENİ EKLENEN SİL VE GÜNCELLE FONKSİYONLARI) ---
+  // --- SİSTEM DURUMU (SİL VE GÜNCELLE FONKSİYONLARI) ---
   const handleAddSystemStatus = async () => {
     if (!sysNameInput || !sysStatusInput) return;
     
-    await supabase.from('system_status').insert([{ name: sysNameInput, status: sysStatusInput }]);
-    
-    setSysNameInput(""); setSysStatusInput("");
-    fetchSystemStatus();
+    const { error } = await supabase.from('system_status').insert([{ 
+      id: Date.now(), // <-- ÇÖZÜM BURADA: Manuel ID gönderiyoruz
+      name: sysNameInput, 
+      status: sysStatusInput 
+    }]);
+
+    if (error) {
+      console.error("Sistem Eklenemedi: ", error);
+      alert("Sistem durumu buluta eklenemedi!");
+    } else {
+      setSysNameInput(""); setSysStatusInput("");
+      fetchSystemStatus();
+    }
   };
 
   const deleteSystemStatus = async (id: number) => {
@@ -265,7 +274,6 @@ export default function Home() {
             <span className="brand-text">DDİAT <span className="gradient-text">|</span> METE</span>
           </div>
 
-          {/* Mobil Menü Hamburger İkonu */}
           <div className="hamburger" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
           </div>
@@ -311,7 +319,6 @@ export default function Home() {
           </div>
         </header>
         
-        {/* Hakkımızda Bölümü */}
         <section id="hakkimizda">
           <h2 className="section-title"><span className="gradient-text">#</span> Biz Kimiz?</h2>
           <div className="about-grid">
@@ -319,20 +326,19 @@ export default function Home() {
               <i className="fa-solid fa-microchip card-icon"></i>
               <h3>M.E.T.E.</h3>
               <h4 className="sub-title">Mühendislik Elektronik ve Teknoloji Ekibi</h4>
-              <p>Donanım ve yazılımın sınırlarını zorlayan, çok disiplinli bir mühendislik gücüyüz. Geliştirdiğimiz otonom su altı araçları (HROV), insansız su üstü deniz sistemleri ve model uydu projeleri ile geleceğin otonom teknolojilerini uçtan uca kendimiz üretiyoruz. Mekanik tasarımlarımızdan gömülü sistemlerimize kadar her aşamada; Jetson Nano, Pixhawk, YOLO tabanlı nesne tespiti ve karmaşık 6-DOF hareket algoritmalarını harmanlayarak uluslararası standartlarda üretim yapıyoruz.</p>
+              <p>Donanım ve yazılımın sınırlarını zorlayan, çok disiplinli bir mühendislik gücüyüz. Geliştirdiğimiz otonom su altı araçları (HROV), insansız su üstü deniz sistemleri ve model uydu projeleri ile geleceğin otonom teknolojilerini uçtan uca kendimiz üretiyoruz.</p>
               <div className="tech-stack"><span>Python</span><span>C++</span><span>OpenCV</span><span>PyQt6</span><span>MATLAB</span></div>
             </div>
             <div className="about-card ddi-card">
               <i className="fa-solid fa-network-wired card-icon"></i>
               <h3>DDİAT</h3>
               <h4 className="sub-title">Akdeniz Doğal Dil İşleme ve Araştırma Topluluğu</h4>
-              <p>Akdeniz Üniversitesi çatısı altında, makine öğrenmesi ve büyük dil modellerinin (LLM) akademik ve pratik uygulamalarına odaklanıyoruz. Semantik analiz, veri madenciliği ve Türkçe diline özgü yapay zeka mimarileri üzerine derinlemesine araştırmalar yürüterek, teorik bilgiyi mühendislik çözümlerine dönüştürüyoruz.</p>
+              <p>Akdeniz Üniversitesi çatısı altında, makine öğrenmesi ve büyük dil modellerinin (LLM) akademik ve pratik uygulamalarına odaklanıyoruz. Semantik analiz, veri madenciliği ve Türkçe diline özgü yapay zeka mimarileri üzerine araştırmalar yürütüyoruz.</p>
               <div className="tech-stack"><span>PyTorch</span><span>FastAPI</span><span>LLM</span><span>NLP</span></div>
             </div>
           </div>
         </section>
 
-        {/* Sponsorlar */}
         <section id="sponsorlar">
           <h2 className="section-title text-center"><span className="gradient-text">#</span> Destekçilerimiz</h2>
           <p className="text-center" style={{ color: "#888", marginBottom: "40px" }}>Birlikte daha güçlü, daha ileriye.</p>
@@ -348,7 +354,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Sosyal Ağ */}
         <section id="instagram">
           <h2 className="section-title"><span className="gradient-text">#</span> Sosyal Ağ</h2>
           <div className="insta-grid">
@@ -377,12 +382,10 @@ export default function Home() {
           </div>
         </section>
         
-        {/* İletişim */}
         <section id="iletisim" className="contact-section">
           <div className="container">
             <h2 className="section-title text-center"><span className="gradient-text">#</span> Bize Ulaşın</h2>
             <p className="text-center" style={{ color: "#888", marginBottom: "40px" }}>İş birlikleri, sponsorluk ve sorularınız için ağımıza bağlanın.</p>
-            
             <div className="contact-grid">
               <div className="contact-info-card">
                 <h3>İletişim Bilgileri</h3>
@@ -392,20 +395,10 @@ export default function Home() {
                   <li><i className="fa-solid fa-phone"></i> <span>+90 (535) 081 14 10</span></li>
                 </ul>
               </div>
-              
               <form action="https://formspree.io/f/mppabbpb" method="POST" className="cyber-form contact-form">
-                <div className="input-group">
-                  <input type="text" name="Ad_Soyad" required placeholder=" " />
-                  <label>Adınız Soyadınız</label>
-                </div>
-                <div className="input-group">
-                  <input type="email" name="E_Posta" required placeholder=" " />
-                  <label>E-Posta Adresiniz</label>
-                </div>
-                <div className="input-group">
-                  <textarea name="Mesaj" required rows={4} placeholder=" "></textarea>
-                  <label>Mesajınız</label>
-                </div>
+                <div className="input-group"><input type="text" name="Ad_Soyad" required placeholder=" " /><label>Adınız Soyadınız</label></div>
+                <div className="input-group"><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta Adresiniz</label></div>
+                <div className="input-group"><textarea name="Mesaj" required rows={4} placeholder=" "></textarea><label>Mesajınız</label></div>
                 <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
                 <button type="submit" className="btn-glow w-100">MESAJI İLET //{">"}</button>
               </form>
@@ -413,33 +406,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Başvuru */}
         <section id="basvuru" className="apply-section">
           <div className="form-container">
-            <div className="form-header">
-              <h2>Sisteme Katıl</h2>
-              <p>Yeni yetenekler arıyoruz. Hangi ekibe katılmak istersin?</p>
-            </div>
+            <div className="form-header"><h2>Sisteme Katıl</h2><p>Yeni yetenekler arıyoruz. Hangi ekibe katılmak istersin?</p></div>
             <form action="https://formspree.io/f/mnpawwdq" method="POST" className="cyber-form">
-              <div className="input-group">
-                <input type="text" name="Basvuru_Yapan_Kişi" required placeholder=" " />
-                <label>Ad Soyad</label>
-              </div>
-              <div className="input-group">
-                <input type="email" name="Basvuru_Eposta" required placeholder=" " />
-                <label>E-Posta</label>
-              </div>
+              <div className="input-group"><input type="text" name="Basvuru_Yapan_Kişi" required placeholder=" " /><label>Ad Soyad</label></div>
+              <div className="input-group"><input type="email" name="Basvuru_Eposta" required placeholder=" " /><label>E-Posta</label></div>
               <div className="input-group select-group">
-                <select name="Tercih_Edilen_Ekip" required defaultValue="">
-                  <option value="" disabled>Hedef Ekip Seçin</option>
-                  <option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım/Mekanik)</option>
-                  <option value="DDİAT">DDİAT (Yapay Zeka/Araştırma)</option>
-                </select>
+                <select name="Tercih_Edilen_Ekip" required defaultValue=""><option value="" disabled>Hedef Ekip Seçin</option><option value="M.E.T.E.">M.E.T.E.</option><option value="DDİAT">DDİAT</option></select>
               </div>
-              <div className="input-group">
-                <textarea name="Basvuru_Nedeni" required rows={3} placeholder=" "></textarea>
-                <label>Neden bizimle olmak istiyorsun?</label>
-              </div>
+              <div className="input-group"><textarea name="Basvuru_Nedeni" required rows={3} placeholder=" "></textarea><label>Neden bizimle olmak istiyorsun?</label></div>
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
               <button type="submit" className="btn-glow w-100">BAŞVURU YAP //{">"}</button>
             </form>
@@ -447,55 +423,28 @@ export default function Home() {
         </section>
       </div>
 
-
-      {/* --- ÜYE PANELİ MODALI --- */}
       {isLoginModalOpen && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setIsLoginModalOpen(false) }}>
           <div className="modal-box">
             <span className="close-modal" onClick={() => setIsLoginModalOpen(false)}>&times;</span>
-            <div className="modal-header">
-              <i className="fa-solid fa-shield-halved fa-2x"></i>
-              <h2>Gizli Ağ Erişimi</h2>
-              <p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p>
-            </div>
-
+            <div className="modal-header"><i className="fa-solid fa-shield-halved fa-2x"></i><h2>Gizli Ağ Erişimi</h2><p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p></div>
             <div className="auth-tabs">
               <button className={`tab-btn ${authTab === 'login' ? 'active' : ''}`} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Yap</button>
               <button className={`tab-btn ${authTab === 'register' ? 'active' : ''}`} onClick={() => {setAuthTab('register'); setAuthMsg({text:"", type:""})}}>Kayıt Ol</button>
             </div>
-
             {authTab === 'login' ? (
               <form className="auth-form active" onSubmit={handleLogin}>
-                <div className="input-group">
-                  <input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
-                  <label>Kayıtlı E-Posta Adresi</label>
-                </div>
-                <div className="input-group">
-                  <input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} />
-                  <label>Parola</label>
-                </div>
+                <div className="input-group"><input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} /><label>Kayıtlı E-Posta Adresi</label></div>
+                <div className="input-group"><input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} /><label>Parola</label></div>
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
-                
-                <div className="admin-note">
-                  <i className="fa-solid fa-lock"></i>
-                  <span>Sisteme giriş izniniz <b>Admin (Arda Kaplan)</b> tarafından doğrulanıp aktifleştirilmektedir.</span>
-                </div>
+                <div className="admin-note"><i className="fa-solid fa-lock"></i><span>Sisteme giriş izniniz <b>Admin (Arda Kaplan)</b> tarafından doğrulanıp aktifleştirilmektedir.</span></div>
               </form>
             ) : (
               <form className="auth-form active" onSubmit={handleRegister}>
-                <div className="input-group">
-                  <input type="text" required placeholder=" " value={regName} onChange={(e) => setRegName(e.target.value)} />
-                  <label>Adınız Soyadınız</label>
-                </div>
-                <div className="input-group">
-                  <input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} />
-                  <label>E-Posta Adresi (Üniversite/Kişisel)</label>
-                </div>
-                <div className="input-group">
-                  <input type="password" required placeholder=" " value={regPass} onChange={(e) => setRegPass(e.target.value)} />
-                  <label>Bir Parola Belirleyin</label>
-                </div>
+                <div className="input-group"><input type="text" required placeholder=" " value={regName} onChange={(e) => setRegName(e.target.value)} /><label>Adınız Soyadınız</label></div>
+                <div className="input-group"><input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} /><label>E-Posta Adresi (Üniversite/Kişisel)</label></div>
+                <div className="input-group"><input type="password" required placeholder=" " value={regPass} onChange={(e) => setRegPass(e.target.value)} /><label>Bir Parola Belirleyin</label></div>
                 <button type="submit" className="btn-glow w-100">ONAY İÇİN BAŞVUR</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
               </form>
@@ -504,48 +453,33 @@ export default function Home() {
         </div>
       )}
 
-
-      {/* --- GİZLİ ADMİN PANELİ --- */}
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
             <div className="admin-header">
-              <div>
-                <h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2>
-                <p>Ağ Yöneticisi: {currentUser}</p>
-              </div>
+              <div><h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2><p>Ağ Yöneticisi: {currentUser}</p></div>
               <button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button>
             </div>
-            
             <div className="admin-content">
               <h3>Bekleyen Başvurular</h3>
-              <div className="table-container">
+              <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
                   <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'pending').map((user, idx) => (
-                      <tr key={idx}>
-                        <td>{user.name}</td><td>{user.email}</td>
-                        <td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td>
-                      </tr>
+                      <tr key={idx}><td>{user.name}</td><td>{user.email}</td><td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td></tr>
                     ))}
-                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (
-                      <tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>
-                    )}
+                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (<tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>)}
                   </tbody>
                 </table>
               </div>
-
               <h3 style={{ marginTop: '40px' }}>Onaylı Üyeler</h3>
-              <div className="table-container">
+              <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
                   <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'approved').map((user, idx) => (
-                      <tr key={idx}>
-                        <td>{user.name}</td><td>{user.email}</td>
-                        <td><button className="btn-action btn-revoke" onClick={() => changeUserStatus(user.email, 'pending')}>Yetkiyi İptal Et</button></td>
-                      </tr>
+                      <tr key={idx}><td>{user.name}</td><td>{user.email}</td><td><button className="btn-action btn-revoke" onClick={() => changeUserStatus(user.email, 'pending')}>Yetkiyi İptal Et</button></td></tr>
                     ))}
                   </tbody>
                 </table>
@@ -555,8 +489,6 @@ export default function Home() {
         </div>
       )}
 
-
-      {/* --- ÜYE KONTROL MERKEZİ (DASHBOARD) --- */}
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
@@ -575,14 +507,13 @@ export default function Home() {
                 <button className="btn-glow" onClick={handleAddSystemStatus}>Durum Ekle</button>
               </div>
               
-              <div style={{ marginTop: "20px" }}>
+              <div style={{ marginTop: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 {systemStatusDB.map((sys, idx) => (
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
                     <div>
                       <span style={{ color: '#fff' }}>{sys.name}</span>
                       <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
                     </div>
-                    {/* YENİ EKLENEN SİL VE DÜZENLE BUTONLARI */}
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
@@ -595,19 +526,22 @@ export default function Home() {
             {/* Aktif İstasyonlar */}
             <div className="dash-card" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-users"></i> Aktif İstasyonlar</h3>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                <span>Arda Kaplan (Admin)</span>
-                <span className="text-green">[{currentUser.includes("Admin") ? "Şu An Aktif" : "Yetkili"}]</span>
+              
+              <div style={{ marginTop: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
+                  <span>Arda Kaplan (Admin)</span>
+                  <span className="text-green">[{currentUser.includes("Admin") ? "Şu An Aktif" : "Yetkili"}]</span>
+                </div>
+                {approvedUsers.map((user, idx) => {
+                  const isOnline = user.name === currentUser || user.is_online;
+                  return (
+                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
+                      <span>{user.name}</span>
+                      <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
+                    </div>
+                  );
+                })}
               </div>
-              {approvedUsers.map((user, idx) => {
-                const isOnline = user.name === currentUser || user.is_online;
-                return (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
-                    <span>{user.name}</span>
-                    <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
-                  </div>
-                );
-              })}
             </div>
 
             {/* Görev Ekleme ve Listeler */}
@@ -624,7 +558,7 @@ export default function Home() {
               </div>
 
               <h3 style={{ marginTop: '30px' }}><i className="fa-solid fa-list-check"></i> Aktif Görevler</h3>
-              <div className="table-container">
+              <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
                   <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Durum</th><th>İşlem</th></tr></thead>
                   <tbody>
@@ -642,7 +576,7 @@ export default function Home() {
               </div>
               
               <h3 style={{ marginTop: '30px', color: '#10b981' }}><i className="fa-solid fa-check-double"></i> Tamamlananlar</h3>
-              <div className="table-container">
+              <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
                   <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Tarih</th></tr></thead>
                   <tbody>
