@@ -22,6 +22,7 @@ export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
   // UI Kontrolleri
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Yeni mobil menü state'i
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
@@ -79,7 +80,6 @@ export default function Home() {
       fetchTasks();
       fetchSystemStatus();
       
-      // Anlık güncelleme için verileri her 5 saniyede bir tazele
       const interval = setInterval(() => {
         fetchApprovedUsers();
         fetchTasks();
@@ -161,7 +161,6 @@ export default function Home() {
     if (user.status === 'pending') {
       setAuthMsg({ text: "Erişim Reddedildi: Hesabınız henüz Admin tarafından onaylanmamış.", type: "error" });
     } else if (user.status === 'approved') {
-      // Giriş yapıldığında is_online durumunu true yap
       await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
       
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
@@ -174,7 +173,6 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    // Admin harici biriyse is_online durumunu false yap
     if (currentUser !== "Arda Kaplan (Admin)") {
       await supabase.from('users').update({ is_online: false }).eq('name', currentUser);
     }
@@ -243,14 +241,20 @@ export default function Home() {
             </div>
             <span className="brand-text">DDİAT <span className="gradient-text">|</span> METE</span>
           </div>
-          <ul className="nav-links">
-            <li><a href="#hero">// Başlangıç</a></li>
-            <li><a href="#hakkimizda">Hakkımızda()</a></li>
-            <li><a href="#instagram">Sosyal</a></li>
-            <li><a href="#iletisim">Bize Ulaşın</a></li>
-            <li><a href="#basvuru" className="btn-outline">Sisteme Katıl</a></li>
+
+          {/* Mobil Menü Hamburger İkonu */}
+          <div className="hamburger" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+          </div>
+
+          <ul className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
+            <li><a href="#hero" onClick={() => setIsMobileMenuOpen(false)}>// Başlangıç</a></li>
+            <li><a href="#hakkimizda" onClick={() => setIsMobileMenuOpen(false)}>Hakkımızda()</a></li>
+            <li><a href="#instagram" onClick={() => setIsMobileMenuOpen(false)}>Sosyal</a></li>
+            <li><a href="#iletisim" onClick={() => setIsMobileMenuOpen(false)}>Bize Ulaşın</a></li>
+            <li><a href="#basvuru" className="btn-outline" onClick={() => setIsMobileMenuOpen(false)}>Sisteme Katıl</a></li>
             <li>
-              <button className="btn-glow" onClick={() => { setIsLoginModalOpen(true); setAuthMsg({text:"", type:""}); }}>
+              <button className="btn-glow" onClick={() => { setIsLoginModalOpen(true); setIsMobileMenuOpen(false); setAuthMsg({text:"", type:""}); }}>
                 <i className="fa-solid fa-terminal"></i> Üye Paneli
               </button>
             </li>
@@ -542,9 +546,11 @@ export default function Home() {
             {/* Sistem Durumu */}
             <div className="dash-card" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-server"></i> Sistem Durumu Bildir</h3>
-              <input type="text" placeholder="Sistem Adı (Örn: Pixhawk)" value={sysNameInput} onChange={(e) => setSysNameInput(e.target.value)} style={{ width: "100%", padding: "10px", marginBottom: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333" }} />
-              <input type="text" placeholder="Durum (Örn: Bağlı, 45°C)" value={sysStatusInput} onChange={(e) => setSysStatusInput(e.target.value)} style={{ width: "100%", padding: "10px", marginBottom: "15px", background: "#0a0a0f", color: "white", border: "1px solid #333" }} />
-              <button className="btn-glow" style={{ width: "100%" }} onClick={handleAddSystemStatus}>Durum Ekle</button>
+              <div className="flex-col-mobile" style={{ display: "flex", gap: "10px" }}>
+                <input type="text" placeholder="Sistem Adı (Örn: Pixhawk)" value={sysNameInput} onChange={(e) => setSysNameInput(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <input type="text" placeholder="Durum (Örn: Bağlı, 45°C)" value={sysStatusInput} onChange={(e) => setSysStatusInput(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <button className="btn-glow" onClick={handleAddSystemStatus}>Durum Ekle</button>
+              </div>
               
               <div style={{ marginTop: "20px" }}>
                 {systemStatusDB.map((sys, idx) => (
@@ -563,21 +569,24 @@ export default function Home() {
                 <span>Arda Kaplan (Admin)</span>
                 <span className="text-green">[{currentUser.includes("Admin") ? "Şu An Aktif" : "Yetkili"}]</span>
               </div>
-              {approvedUsers.map((user, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
-                  <span>{user.name}</span>
-                  <span style={{ color: user.is_online ? '#10b981' : '#666' }}>[{user.is_online ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
-                </div>
-              ))}
+              {approvedUsers.map((user, idx) => {
+                const isOnline = user.name === currentUser || user.is_online;
+                return (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
+                    <span>{user.name}</span>
+                    <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Görev Ekleme ve Listeler */}
-            <div className="dash-card" style={{ gridColumn: "span 2", background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
+            <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-plus"></i> Yeni Görev Planla</h3>
-              <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-                <input type="text" placeholder="Görev Adı" value={taskName} onChange={(e) => setTaskName(e.target.value)} style={{ flex: 2, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333" }} />
-                <input type="text" placeholder="Sorumlu" value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333" }} />
-                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333" }}>
+              <div className="flex-col-mobile" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+                <input type="text" placeholder="Görev Adı" value={taskName} onChange={(e) => setTaskName(e.target.value)} style={{ flex: 2, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <input type="text" placeholder="Sorumlu" value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }}>
                   <option value="Devam Ediyor">Devam Ediyor</option>
                   <option value="Test Ediliyor">Test Ediliyor</option>
                 </select>
@@ -585,35 +594,39 @@ export default function Home() {
               </div>
 
               <h3 style={{ marginTop: '30px' }}><i className="fa-solid fa-list-check"></i> Aktif Görevler</h3>
-              <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
-                <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Durum</th><th>İşlem</th></tr></thead>
-                <tbody>
-                  {tasksDB.filter(t => !t.is_completed).map(task => (
-                    <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
-                      <td style={{ padding: "10px 0" }}>{task.name}</td>
-                      <td>{task.assignee}</td>
-                      <td style={{ color: task.status === 'Test Ediliyor' ? '#f59e0b' : '#36d1dc' }}>{task.status}</td>
-                      <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
-                    </tr>
-                  ))}
-                  {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={4} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
-                </tbody>
-              </table>
+              <div className="table-container">
+                <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
+                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Durum</th><th>İşlem</th></tr></thead>
+                  <tbody>
+                    {tasksDB.filter(t => !t.is_completed).map(task => (
+                      <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
+                        <td style={{ padding: "10px 0" }}>{task.name}</td>
+                        <td>{task.assignee}</td>
+                        <td style={{ color: task.status === 'Test Ediliyor' ? '#f59e0b' : '#36d1dc' }}>{task.status}</td>
+                        <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
+                      </tr>
+                    ))}
+                    {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={4} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
               
               <h3 style={{ marginTop: '30px', color: '#10b981' }}><i className="fa-solid fa-check-double"></i> Tamamlananlar</h3>
-              <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
-                <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Tarih</th></tr></thead>
-                <tbody>
-                  {tasksDB.filter(t => t.is_completed).map(task => (
-                    <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
-                      <td style={{ padding: "10px 0", textDecoration: 'line-through', color: '#666' }}>{task.name}</td>
-                      <td>{task.assignee}</td>
-                      <td className="text-green">{task.date_completed}</td>
-                    </tr>
-                  ))}
-                  {tasksDB.filter(t => t.is_completed).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
-                </tbody>
-              </table>
+              <div className="table-container">
+                <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
+                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Tarih</th></tr></thead>
+                  <tbody>
+                    {tasksDB.filter(t => t.is_completed).map(task => (
+                      <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
+                        <td style={{ padding: "10px 0", textDecoration: 'line-through', color: '#666' }}>{task.name}</td>
+                        <td>{task.assignee}</td>
+                        <td className="text-green">{task.date_completed}</td>
+                      </tr>
+                    ))}
+                    {tasksDB.filter(t => t.is_completed).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
           </div>
