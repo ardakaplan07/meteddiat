@@ -99,27 +99,48 @@ export default function Home() {
     }
   }, [isDashboardOpen]);
 
-  // SEKME KAPATILDIĞINDA OTOMATİK ÇEVRİMDIŞI YAPMA (Keepalive ile Kesin Çözüm)
+  // YENİ NESİL ÇEVRİMİÇİ TAKİBİ (Sekme değişimi algılama)
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (currentUser && currentUser !== "Admin") {
-        const url = `${SUPABASE_URL}/rest/v1/users?name=eq.${encodeURIComponent(currentUser)}`;
-        fetch(url, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ is_online: false }),
-          keepalive: true // Tarayıcı kapansa bile isteğin Supabase'e ulaşmasını sağlar
-        });
+    if (!currentUser || currentUser === "Admin") return;
+
+    const setOnlineStatus = (status: boolean) => {
+      supabase.from('users').update({ is_online: status }).eq('name', currentUser).then();
+    };
+
+    const handleVisibilityChange = () => {
+      // Kullanıcı başka sekmeye geçerse veya tarayıcıyı alta alırsa anında "Çevrimdışı" yap
+      if (document.visibilityState === 'hidden') {
+        setOnlineStatus(false);
+      } else {
+        setOnlineStatus(true);
       }
     };
 
+    const handleBeforeUnload = () => {
+      // Tarayıcı tamamen kapatılırken son bir çıkış sinyali
+      const url = `${SUPABASE_URL}/rest/v1/users?name=eq.${encodeURIComponent(currentUser)}`;
+      fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ is_online: false }),
+        keepalive: true
+      }).catch(() => {});
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("unload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("unload", handleBeforeUnload);
+    };
   }, [currentUser]);
 
 
@@ -475,23 +496,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* DETAYLI BAŞVURU FORMU */}
-        <section id="basvuru" className="apply-section">
-          <div className="form-container" style={{ maxWidth: "700px" }}>
-            <div className="form-header"><h2>Sisteme Katıl</h2><p>Yeni yetenekler arıyoruz. Hangi ekibe katılmak istersin?</p></div>
+        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Ortalanmış ve Dinamik) */}
+        <section id="basvuru" className="apply-section" style={{ display: "flex", justifyContent: "center", padding: "80px 20px" }}>
+          <div className="form-container" style={{ width: "100%", maxWidth: "850px", margin: "0 auto", background: "linear-gradient(145deg, rgba(15,15,20,0.95), rgba(10,10,12,0.95))", border: "1px solid rgba(54, 209, 220, 0.3)", boxShadow: "0 0 30px rgba(54, 209, 220, 0.05)", borderRadius: "16px", padding: "50px 30px" }}>
+            
+            <div className="form-header" style={{ marginBottom: "40px", textAlign: "center" }}>
+              <h2 style={{ color: "var(--primary-glow)", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 10px 0" }}>Sisteme Katıl</h2>
+              <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
+            </div>
+            
             <form action="https://formspree.io/f/mnpawwdq" method="POST" className="cyber-form">
-              
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Ad_Soyad" required placeholder=" " /><label>Ad Soyad</label></div>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta Adresi</label></div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginTop: "25px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}><input type="tel" name="Telefon" required placeholder=" " /><label>Telefon Numarası</label></div>
                 <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Universite_Bolum" required placeholder=" " /><label>Üniversite & Bölüm</label></div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginTop: "25px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
                   <select name="Sinif" required defaultValue=""><option value="" disabled>Sınıfınızı Seçin</option><option value="Hazırlık">Hazırlık</option><option value="1. Sınıf">1. Sınıf</option><option value="2. Sınıf">2. Sınıf</option><option value="3. Sınıf">3. Sınıf</option><option value="4. Sınıf">4. Sınıf</option><option value="Yüksek Lisans / Mezun">Yüksek Lisans / Mezun</option></select>
                 </div>
@@ -500,10 +525,10 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={3} placeholder=" "></textarea><label>Neden bizimle olmak istiyorsun? Neler yapabilirsin?</label></div>
+              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={4} placeholder=" "></textarea><label>Sisteme Katılım Amacınız & Becerileriniz</label></div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
-              <button type="submit" className="btn-glow w-100">BAŞVURU YAP //{">"}</button>
+              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "1.5px" }}>VERİLERİ İŞLE VE BAŞVUR //{">"}</button>
             </form>
           </div>
         </section>
@@ -618,7 +643,10 @@ export default function Home() {
               <div style={{ marginTop: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 {systemStatusDB.map((sys, idx) => (
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                    <div><span style={{ color: '#fff' }}>{sys.name}</span><div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div></div>
+                    <div>
+                      <span style={{ color: '#fff' }}>{sys.name}</span>
+                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
@@ -641,7 +669,7 @@ export default function Home() {
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
                       <span>{user.name}</span>
-                      <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}]</span>
+                      <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Uzakta/Çevrimdışı'}]</span>
                     </div>
                   );
                 })}
