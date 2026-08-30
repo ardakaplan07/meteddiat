@@ -21,50 +21,44 @@ const TYPING_TEXT_FULL = "Geleceğin donanımını ve algoritmasını üretiyoru
 export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
-  // UI Kontrolleri
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register" | "forgot">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   
-  // Animasyonlar
   const [typedText, setTypedText] = useState("");
   const [glitchShadow, setGlitchShadow] = useState("none");
 
-  // Auth Formları
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass] = useState("");
   
-  // Şifremi Unuttum Formu
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPass, setResetNewPass] = useState("");
 
   const [authMsg, setAuthMsg] = useState({ text: "", type: "" });
 
-  // Veritabanı State'leri
   const [currentUser, setCurrentUser] = useState("");
   const [allUsersDB, setAllUsersDB] = useState<any[]>([]);
   const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
   const [tasksDB, setTasksDB] = useState<any[]>([]);
   const [systemStatusDB, setSystemStatusDB] = useState<any[]>([]);
+  
+  // YENİ EKLENEN: LOG STATE'İ
+  const [logsDB, setLogsDB] = useState<any[]>([]);
 
-  // Dashboard Formları
   const [taskName, setTaskName] = useState("");
   const [taskAssignee, setTaskAssignee] = useState("");
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
   const [sysNameInput, setSysNameInput] = useState("");
   const [sysStatusInput, setSysStatusInput] = useState("");
 
-  // --- E-POSTA DOĞRULAMA FONKSİYONU ---
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
-
-  // --- EFEKTLER (useEffect) ---
 
   useEffect(() => {
     let i = 0;
@@ -89,17 +83,18 @@ export default function Home() {
       fetchApprovedUsers();
       fetchTasks();
       fetchSystemStatus();
+      fetchLogs(); // Logları getir
       
       const interval = setInterval(() => {
         fetchApprovedUsers();
         fetchTasks();
         fetchSystemStatus();
+        fetchLogs(); // 5 saniyede bir logları tazele
       }, 5000);
       return () => clearInterval(interval);
     }
   }, [isDashboardOpen]);
 
-  // ÇEVRİMİÇİ/ÇEVRİMDIŞI KESİN ÇÖZÜMÜ (Mobil Uygulama Kapanma ve Sekme Değişimi)
   useEffect(() => {
     if (!currentUser || currentUser === "Admin") return;
 
@@ -114,7 +109,7 @@ export default function Home() {
           'Prefer': 'return=minimal'
         },
         body: JSON.stringify({ is_online: isOnline }),
-        keepalive: true // Tarayıcı aniden kapansa bile sinyali yollar
+        keepalive: true
       }).catch(() => {});
     };
 
@@ -131,7 +126,7 @@ export default function Home() {
     };
 
     window.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("pagehide", handleUnload); // Mobil tarayıcılar için kritik
+    window.addEventListener("pagehide", handleUnload);
     window.addEventListener("beforeunload", handleUnload);
 
     return () => {
@@ -142,8 +137,20 @@ export default function Home() {
   }, [currentUser]);
 
 
-  // --- SUPABASE VERİ ÇEKME FONKSİYONLARI ---
-  
+  // --- YENİ EKLENEN LOG FONKSİYONLARI ---
+  const fetchLogs = async () => {
+    // Son 50 logu id'ye göre azalan (en yeni en üstte) şeklinde çek
+    const { data, error } = await supabase.from('system_logs').select('*').order('id', { ascending: false }).limit(50);
+    if (!error && data) setLogsDB(data);
+  };
+
+  const addLog = async (msg: string) => {
+    const timeStr = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const { error } = await supabase.from('system_logs').insert([{ id: Date.now(), message: msg, time: timeStr }]);
+    if (!error) fetchLogs();
+  };
+
+
   const fetchAllUsers = async () => {
     const { data, error } = await supabase.from('users').select('*');
     if (!error && data) setAllUsersDB(data);
@@ -163,8 +170,6 @@ export default function Home() {
     const { data } = await supabase.from('system_status').select('*');
     if (data) setSystemStatusDB(data);
   };
-
-  // --- YETKİLENDİRME (AUTH) FONKSİYONLARI ---
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
@@ -226,6 +231,9 @@ export default function Home() {
     } else if (user.status === 'approved') {
       await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
       
+      // LOG EKLEMESİ
+      addLog(`[AUTH] ${user.name} istasyonu ağa bağlandı.`);
+
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
       setTimeout(() => {
         setIsLoginModalOpen(false);
@@ -269,14 +277,12 @@ export default function Home() {
     setCurrentUser("");
   };
 
-  // --- ADMİN İŞLEMLERİ ---
   const changeUserStatus = async (email: string, newStatus: string) => {
     const { error } = await supabase.from('users').update({ status: newStatus }).eq('email', email);
     if (!error) fetchAllUsers();
     else alert("Yetki değiştirilirken hata oluştu!");
   };
 
-  // --- DASHBOARD (GÖREV) İŞLEMLERİ ---
   const handleAddTask = async () => {
     if (!taskName || !taskAssignee) return alert("Lütfen görev adı ve sorumlu kişi girin.");
 
@@ -288,24 +294,23 @@ export default function Home() {
       is_completed: false 
     }]);
 
-    if (error) {
-      console.error("Görev Eklenemedi: ", error);
-      alert("Görev Buluta Eklenemedi! Hata detayı konsolda.");
-    } else {
+    if (!error) {
+      addLog(`[GÖREV] ${currentUser}, '${taskAssignee}' için yeni görev atadı: ${taskName}`);
       setTaskName(""); setTaskAssignee("");
       fetchTasks();
+    } else {
+      alert("Görev Buluta Eklenemedi! Hata detayı konsolda.");
     }
   };
 
   const completeTask = async (taskId: number) => {
     const d = new Date();
     const dateStr = `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
-    
     await supabase.from('tasks').update({ is_completed: true, date_completed: dateStr }).eq('id', taskId);
+    addLog(`[GÖREV] ${currentUser} bir görevi tamamlandı olarak işaretledi.`);
     fetchTasks();
   };
 
-  // --- SİSTEM DURUMU (SİL VE GÜNCELLE FONKSİYONLARI) ---
   const handleAddSystemStatus = async () => {
     if (!sysNameInput || !sysStatusInput) return;
     
@@ -315,28 +320,32 @@ export default function Home() {
       status: sysStatusInput 
     }]);
 
-    if (error) {
-      console.error("Sistem Eklenemedi: ", error);
-      alert("Sistem durumu buluta eklenemedi!");
-    } else {
+    if (!error) {
+      addLog(`[SİSTEM] ${currentUser}, '${sysNameInput}' sistemini ekledi. Durum: ${sysStatusInput}`);
       setSysNameInput(""); setSysStatusInput("");
       fetchSystemStatus();
+    } else {
+      alert("Sistem durumu buluta eklenemedi!");
     }
   };
 
   const deleteSystemStatus = async (id: number) => {
     if(!confirm("Bu sistemi silmek istediğinize emin misiniz?")) return;
     const { error } = await supabase.from('system_status').delete().eq('id', id);
-    if (!error) fetchSystemStatus();
-    else alert("Silinirken bir hata oluştu!");
+    if (!error) {
+      addLog(`[SİSTEM] ${currentUser} bir sistem durumunu veritabanından sildi.`);
+      fetchSystemStatus();
+    }
   };
 
   const editSystemStatus = async (sys: any) => {
     const newStatus = prompt(`"${sys.name}" için yeni durumu girin:`, sys.status);
     if (newStatus && newStatus !== sys.status) {
       const { error } = await supabase.from('system_status').update({ status: newStatus }).eq('id', sys.id);
-      if (!error) fetchSystemStatus();
-      else alert("Güncellenirken bir hata oluştu!");
+      if (!error) {
+        addLog(`[SİSTEM] ${currentUser}, '${sys.name}' durumunu '${newStatus}' olarak güncelledi.`);
+        fetchSystemStatus();
+      }
     }
   };
 
@@ -350,7 +359,6 @@ export default function Home() {
     <>
       <div className="code-bg-overlay"></div>
 
-      {/* --- ANA SAYFA --- */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block" }}>
         
         <nav className="navbar">
@@ -494,15 +502,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Glassmorphism & Neon Aura) */}
         <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
           
-          {/* Çok daha güçlü Neon Parlama Efektleri (Arkaplan) */}
           <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
           
-          {/* className="form-container" KASITLI OLARAK SİLİNDİ - Eski CSS ezmesin diye */}
           <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
@@ -566,7 +571,6 @@ export default function Home() {
         </section>
       </div>
 
-      {/* --- ÜYE PANELİ MODALI (BOŞLUĞA TIKLAYINCA KAPANMA İPTAL EDİLDİ) --- */}
       {isLoginModalOpen && (
         <div className="modal-overlay active">
           <div className="modal-box">
@@ -617,7 +621,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- GİZLİ ADMİN PANELİ --- */}
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
@@ -654,7 +657,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- ÜYE KONTROL MERKEZİ (DASHBOARD) --- */}
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
@@ -705,6 +707,21 @@ export default function Home() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* --- YENİ EKLENEN CANLI TERMİNAL LOG MODÜLÜ --- */}
+            <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
+              <h3><i className="fa-solid fa-terminal"></i> Canlı Terminal Log (Operasyon Geçmişi)</h3>
+              <div style={{ background: "#050505", border: "1px solid #1a1a24", borderRadius: "6px", padding: "15px", height: "250px", overflowY: "auto", fontFamily: "var(--font-code)", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "8px" }}>
+                {logsDB.map((log, idx) => (
+                  <div key={log.id || idx} style={{ display: "flex", gap: "10px", borderBottom: "1px dashed rgba(255,255,255,0.05)", paddingBottom: "5px", alignItems: "flex-start" }}>
+                    <span style={{ color: "#666", minWidth: "75px" }}>[{log.time}]</span>
+                    <span style={{ color: log.message.includes("[AUTH]") ? "#36d1dc" : log.message.includes("[GÖREV]") ? "#f59e0b" : "#10b981", whiteSpace: "nowrap" }}>root@mete:~#</span>
+                    <span style={{ color: "#d1d5db" }}>{log.message}</span>
+                  </div>
+                ))}
+                {logsDB.length === 0 && <span style={{ color: "#666" }}>Sistem logları bekleniyor... (Supabase'de 'system_logs' tablosu oluşturmayı unutmayın)</span>}
               </div>
             </div>
 
