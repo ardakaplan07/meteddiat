@@ -226,7 +226,9 @@ export default function Home() {
       setAuthMsg({ text: "Bir hata oluştu veya bu e-posta zaten sistemde kayıtlı!", type: "error" });
     } else {
       setAuthMsg({ text: "Başvurunuz alındı. Admin onayladıktan sonra giriş yapabileceksiniz.", type: "success" });
-      setRegName(""); setRegEmail(""); setRegPass("");
+      setRegName(""); 
+      setRegEmail(""); 
+      setRegPass("");
     }
   };
 
@@ -265,11 +267,14 @@ export default function Home() {
     } else if (user.status === 'approved') {
       await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
       addLog(`[AUTH] ${user.name} istasyonu ağa bağlandı.`);
+      
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
       setTimeout(() => {
         setIsLoginModalOpen(false);
         setIsDashboardOpen(true);
-        setLoginEmail(""); setLoginPass(""); setAuthMsg({ text: "", type: "" });
+        setLoginEmail(""); 
+        setLoginPass(""); 
+        setAuthMsg({ text: "", type: "" });
       }, 1500);
     }
   };
@@ -292,7 +297,8 @@ export default function Home() {
 
     if (!updateError) {
       setAuthMsg({ text: "Şifreniz başarıyla değiştirildi. Giriş yapabilirsiniz.", type: "success" });
-      setResetEmail(""); setResetNewPass("");
+      setResetEmail(""); 
+      setResetNewPass("");
       setTimeout(() => { setAuthTab("login"); setAuthMsg({ text: "", type: "" }); }, 2000);
     } else {
       setAuthMsg({ text: "Şifre güncellenirken bir hata oluştu.", type: "error" });
@@ -329,7 +335,10 @@ export default function Home() {
 
     if (!error) {
       addLog(`[GÖREV] ${currentUser}, '${taskAssignee}' için yeni görev atadı: ${taskName} [${taskPriority}]`);
-      setTaskName(""); setTaskAssignee(""); setTaskDeadline(""); setTaskPriority("Normal");
+      setTaskName(""); 
+      setTaskAssignee(""); 
+      setTaskDeadline(""); 
+      setTaskPriority("Normal");
       fetchTasks();
     } else {
       console.error(error);
@@ -354,7 +363,8 @@ export default function Home() {
     }]);
     if (!error) {
       addLog(`[SİSTEM] ${currentUser}, '${sysNameInput}' sistemini ekledi. Durum: ${sysStatusInput}`);
-      setSysNameInput(""); setSysStatusInput("");
+      setSysNameInput(""); 
+      setSysStatusInput("");
       fetchSystemStatus();
     }
   };
@@ -390,90 +400,95 @@ export default function Home() {
       <div className="code-bg-overlay"></div>
 
       {/* ============================================================================== */}
-      {/* PROFESYONEL SVG CAD MONTAJI (Scroll ile Birleşen Otonom Parçalar) */}
+      {/* GERÇEKÇİ RESİM DİLİMLEME (REALISTIC IMAGE CLIP-PATH ASSEMBLY) EFEKTİ */}
       {/* ============================================================================== */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
         
-        {/* SOL: M.E.T.E. HROV (Su Altı Aracı) CAD Tel Kafes */}
-        <div style={{ position: "absolute", left: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
-          <svg viewBox="0 0 300 400" stroke="#36d1dc" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(54,209,220,0.6))" }}>
-            
-            {/* Gövde Şasisi (Yukarıdan aşağı iner) */}
-            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
-              <rect x="100" y="100" width="100" height="200" rx="15" />
-              <line x1="100" y1="140" x2="200" y2="140" strokeDasharray="4 4" />
-              <line x1="100" y1="260" x2="200" y2="260" strokeDasharray="4 4" />
-              <circle cx="150" cy="200" r="30" strokeDasharray="2 4" />
-            </g>
+        {/* SOL MODEL: HROV (assets/hrov-real.png) */}
+        <div style={{ position: "absolute", left: "2%", top: "50%", transform: "translateY(-50%)", width: "400px", height: "600px", opacity: 0.1 + (0.9 * scrollProgress), transition: "opacity 0.2s" }}>
+          
+          {/* Parça 1: Üst (Nose) */}
+          <img 
+            src="/assets/hrov-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
+              clipPath: "inset(0 0 66.6% 0)", 
+              transform: `translateY(${-400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
 
-            {/* Kamera / Aydınlatma Modülü (Aşağıdan yukarı çıkar) */}
-            <g style={{ transform: `translate(0, ${150 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
-              <path d="M 100 100 Q 150 40 200 100" />
-              <circle cx="150" cy="75" r="12" fill="rgba(54,209,220,0.2)" />
-              <line x1="150" y1="63" x2="150" y2="45" />
-            </g>
+          {/* Parça 2: Orta (Body) */}
+          <img 
+            src="/assets/hrov-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
+              clipPath: "inset(33.3% 0 33.3% 0)", 
+              transform: `translateX(${-400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
 
-            {/* Sol İtici Motor (Soldan sağa kayar ve döner) */}
-            <g style={{ transform: `translate(${-150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${-90 * (1 - scrollProgress)}deg)`, transformOrigin: "70px 200px", transition: "transform 0.1s ease-out" }}>
-              <rect x="60" y="150" width="30" height="100" rx="5" />
-              <polygon points="60,250 90,250 95,280 55,280" />
-              <line x1="75" y1="250" x2="75" y2="280" />
-            </g>
-
-            {/* Sağ İtici Motor (Sağdan sola kayar ve döner) */}
-            <g style={{ transform: `translate(${150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${90 * (1 - scrollProgress)}deg)`, transformOrigin: "230px 200px", transition: "transform 0.1s ease-out" }}>
-              <rect x="210" y="150" width="30" height="100" rx="5" />
-              <polygon points="210,250 240,250 245,280 205,280" />
-              <line x1="225" y1="250" x2="225" y2="280" />
-            </g>
-          </svg>
+          {/* Parça 3: Alt (Thrusters) */}
+          <img 
+            src="/assets/hrov-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
+              clipPath: "inset(66.6% 0 0 0)", 
+              transform: `translateY(${400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
         </div>
 
-        {/* SAĞ: MODEL UYDU CAD Tel Kafes */}
-        <div style={{ position: "absolute", right: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
-          <svg viewBox="0 0 300 400" stroke="#ff5e62" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(255,94,98,0.6))" }}>
-            
-            {/* Uydu Çekirdeği (Merkezde büyür) */}
-            <g style={{ transform: `scale(${1 + 1.5 * (1 - scrollProgress)})`, transformOrigin: "150px 200px", transition: "transform 0.1s ease-out" }}>
-              <polygon points="120,130 180,130 210,180 180,270 120,270 90,180" />
-              <circle cx="150" cy="200" r="25" fill="rgba(255,94,98,0.1)" />
-              <circle cx="150" cy="200" r="40" strokeDasharray="5 5" />
-            </g>
+        {/* SAĞ MODEL: SATELLITE (assets/satellite-real.png) */}
+        <div style={{ position: "absolute", right: "2%", top: "50%", transform: "translateY(-50%)", width: "400px", height: "600px", opacity: 0.1 + (0.9 * scrollProgress), transition: "opacity 0.2s" }}>
+          
+          {/* Parça 1: Üst Panel */}
+          <img 
+            src="/assets/satellite-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
+              clipPath: "inset(0 0 66.6% 0)", 
+              transform: `translate(${300 * (1 - scrollProgress)}px, ${-300 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
 
-            {/* İletişim Çanağı / Anten (Yukarıdan iner) */}
-            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
-              <path d="M 90 110 Q 150 50 210 110" strokeDasharray="3 3" />
-              <line x1="150" y1="80" x2="150" y2="130" />
-              <circle cx="150" cy="80" r="5" />
-              <path d="M 120 70 Q 150 20 180 70" opacity="0.5" />
-            </g>
+          {/* Parça 2: Merkez Çekirdek */}
+          <img 
+            src="/assets/satellite-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
+              clipPath: "inset(33.3% 0 33.3% 0)", 
+              transform: `scale(${1 + 2 * (1 - scrollProgress)})`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
 
-            {/* Sol Güneş Paneli (Aşağıdan çapraz gelir) */}
-            <g style={{ transform: `translate(${-200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${-45 * (1 - scrollProgress)}deg)`, transformOrigin: "50px 200px", transition: "transform 0.1s ease-out" }}>
-              <rect x="10" y="160" width="80" height="80" />
-              <line x1="36" y1="160" x2="36" y2="240" />
-              <line x1="62" y1="160" x2="62" y2="240" />
-              <line x1="10" y1="186" x2="90" y2="186" />
-              <line x1="10" y1="212" x2="90" y2="212" />
-              <line x1="90" y1="200" x2="120" y2="200" strokeWidth="4" />
-            </g>
-
-            {/* Sağ Güneş Paneli (Aşağıdan çapraz gelir) */}
-            <g style={{ transform: `translate(${200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${45 * (1 - scrollProgress)}deg)`, transformOrigin: "250px 200px", transition: "transform 0.1s ease-out" }}>
-              <rect x="210" y="160" width="80" height="80" />
-              <line x1="236" y1="160" x2="236" y2="240" />
-              <line x1="262" y1="160" x2="262" y2="240" />
-              <line x1="210" y1="186" x2="290" y2="186" />
-              <line x1="210" y1="212" x2="290" y2="212" />
-              <line x1="180" y1="200" x2="210" y2="200" strokeWidth="4" />
-            </g>
-          </svg>
+          {/* Parça 3: Alt Panel */}
+          <img 
+            src="/assets/satellite-real.png" 
+            alt="" 
+            style={{ 
+              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
+              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
+              clipPath: "inset(66.6% 0 0 0)", 
+              transform: `translate(${300 * (1 - scrollProgress)}px, ${300 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
+            }} 
+          />
         </div>
 
       </div>
       {/* ============================================================================== */}
 
 
+      {/* --- ANA SAYFA (zIndex ile modellerin üstünde tutuldu) --- */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "relative", zIndex: 1 }}>
         
         <nav className="navbar">
@@ -515,7 +530,9 @@ export default function Home() {
           <div className="hero-container">
             <div className="terminal-window">
               <div className="terminal-header">
-                <span className="btn-close"></span><span className="btn-min"></span><span className="btn-max"></span>
+                <span className="btn-close"></span>
+                <span className="btn-min"></span>
+                <span className="btn-max"></span>
                 <span className="terminal-title">bash - root@mete-ddiat</span>
               </div>
               <div className="terminal-body">
@@ -538,14 +555,25 @@ export default function Home() {
               <h3>M.E.T.E.</h3>
               <h4 className="sub-title">Mühendislik Elektronik ve Teknoloji Ekibi</h4>
               <p>Donanım ve yazılımın sınırlarını zorlayan, çok disiplinli bir mühendislik gücüyüz. Geliştirdiğimiz otonom su altı araçları (HROV), insansız su üstü deniz sistemleri ve model uydu projeleri ile geleceğin otonom teknolojilerini uçtan uca kendimiz üretiyoruz.</p>
-              <div className="tech-stack"><span>Python</span><span>C++</span><span>OpenCV</span><span>PyQt6</span><span>MATLAB</span></div>
+              <div className="tech-stack">
+                <span>Python</span>
+                <span>C++</span>
+                <span>OpenCV</span>
+                <span>PyQt6</span>
+                <span>MATLAB</span>
+              </div>
             </div>
             <div className="about-card ddi-card">
               <i className="fa-solid fa-network-wired card-icon"></i>
               <h3>DDİAT</h3>
               <h4 className="sub-title">Akdeniz Doğal Dil İşleme ve Araştırma Topluluğu</h4>
               <p>Akdeniz Üniversitesi çatısı altında, makine öğrenmesi ve büyük dil modellerinin (LLM) akademik ve pratik uygulamalarına odaklanıyoruz. Semantik analiz, veri madenciliği ve Türkçe diline özgü yapay zeka mimarileri üzerine araştırmalar yürütüyoruz.</p>
-              <div className="tech-stack"><span>PyTorch</span><span>FastAPI</span><span>LLM</span><span>NLP</span></div>
+              <div className="tech-stack">
+                <span>PyTorch</span>
+                <span>FastAPI</span>
+                <span>LLM</span>
+                <span>NLP</span>
+              </div>
             </div>
           </div>
         </section>
@@ -577,7 +605,10 @@ export default function Home() {
                   <p>DDİAT yapay zeka etkinlikleri, araştırma duyuruları ve seminerler.</p>
                 </div>
               </div>
-              <div className="insta-footer"><i className="fa-brands fa-instagram"></i><span className="btn-insta">Takip Et</span></div>
+              <div className="insta-footer">
+                <i className="fa-brands fa-instagram"></i>
+                <span className="btn-insta">Takip Et</span>
+              </div>
             </a>
             <a href="https://www.instagram.com/mete.tech_team?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" className="insta-card">
               <div className="insta-overlay" style={{ background: "linear-gradient(135deg, rgba(255,94,98,0.9), rgba(0,0,0,0.85))" }}></div>
@@ -588,7 +619,10 @@ export default function Home() {
                   <p>Atölyeden anlık kareler, tasarım süreçleri ve mühendislik günlüklerimiz.</p>
                 </div>
               </div>
-              <div className="insta-footer"><i className="fa-brands fa-instagram"></i><span className="btn-insta">Takip Et</span></div>
+              <div className="insta-footer">
+                <i className="fa-brands fa-instagram"></i>
+                <span className="btn-insta">Takip Et</span>
+              </div>
             </a>
           </div>
         </section>
@@ -627,7 +661,6 @@ export default function Home() {
         </section>
 
         <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
-          
           <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
@@ -689,7 +722,9 @@ export default function Home() {
               </div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
-              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
+              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>
+                VERİLERİ İŞLE VE BAŞVUR // {">"}
+              </button>
             </form>
           </div>
         </section>
@@ -729,6 +764,7 @@ export default function Home() {
 
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
+                
                 <div className="admin-note">
                   <i className="fa-solid fa-lock"></i>
                   <span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span>
@@ -787,7 +823,13 @@ export default function Home() {
               <h3>Bekleyen Başvurular</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
-                  <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>İsim</th>
+                      <th>E-Posta</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'pending').map((user, idx) => (
                       <tr key={idx}>
@@ -796,14 +838,23 @@ export default function Home() {
                         <td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td>
                       </tr>
                     ))}
-                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (<tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>)}
+                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (
+                      <tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
+              
               <h3 style={{ marginTop: '40px' }}>Onaylı Üyeler</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
-                  <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>İsim</th>
+                      <th>E-Posta</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'approved').map((user, idx) => (
                       <tr key={idx}>
@@ -823,7 +874,9 @@ export default function Home() {
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
-            <div className="dash-brand"><i className="fa-solid fa-terminal"></i> ROOT // KOMUTA MERKEZİ</div>
+            <div className="dash-brand">
+              <i className="fa-solid fa-terminal"></i> ROOT // KOMUTA MERKEZİ
+            </div>
             <button className="btn-outline" onClick={handleLogout}>Ağdan Çık (Logout)</button>
           </div>
           
@@ -841,7 +894,9 @@ export default function Home() {
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
                     <div>
                       <span style={{ color: '#fff' }}>{sys.name}</span>
-                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
+                      <div style={{ marginTop: '5px' }}>
+                        <span className="pulse-dot"></span> {sys.status}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
@@ -921,13 +976,19 @@ export default function Home() {
                       <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
                         <td style={{ padding: "10px 0" }}>{task.name}</td>
                         <td>{task.assignee}</td>
-                        <td style={{ color: task.priority === 'Kritik' ? '#ff5e62' : task.priority === 'Düşük' ? '#888' : '#36d1dc' }}>{task.priority === 'Kritik' ? '🔴 Kritik' : task.priority === 'Düşük' ? '⚪ Düşük' : '🔵 Normal'}</td>
-                        <td style={{ color: isOverdue(task.deadline) ? '#ff5e62' : '#d1d5db', animation: isOverdue(task.deadline) ? 'pulse 1.5s infinite' : 'none' }}>{task.deadline ? new Date(task.deadline).toLocaleDateString('tr-TR') : '-'}</td>
+                        <td style={{ color: task.priority === 'Kritik' ? '#ff5e62' : task.priority === 'Düşük' ? '#888' : '#36d1dc' }}>
+                          {task.priority === 'Kritik' ? '🔴 Kritik' : task.priority === 'Düşük' ? '⚪ Düşük' : '🔵 Normal'}
+                        </td>
+                        <td style={{ color: isOverdue(task.deadline) ? '#ff5e62' : '#d1d5db', animation: isOverdue(task.deadline) ? 'pulse 1.5s infinite' : 'none' }}>
+                          {task.deadline ? new Date(task.deadline).toLocaleDateString('tr-TR') : '-'}
+                        </td>
                         <td style={{ color: task.status === 'Test Ediliyor' ? '#f59e0b' : '#36d1dc' }}>{task.status}</td>
                         <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
                       </tr>
                     ))}
-                    {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={6} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
+                    {tasksDB.filter(t => !t.is_completed).length === 0 && (
+                      <tr><td colSpan={6} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -950,7 +1011,9 @@ export default function Home() {
                         <td className="text-green">{task.date_completed}</td>
                       </tr>
                     ))}
-                    {tasksDB.filter(t => t.is_completed).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
+                    {tasksDB.filter(t => t.is_completed).length === 0 && (
+                      <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
