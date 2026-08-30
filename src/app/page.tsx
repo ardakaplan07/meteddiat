@@ -29,7 +29,6 @@ export default function Home() {
   
   const [typedText, setTypedText] = useState("");
   const [glitchShadow, setGlitchShadow] = useState("none");
-  const [scrollProgress, setScrollProgress] = useState(0); 
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
@@ -71,34 +70,6 @@ export default function Home() {
   };
 
   // --- EFEKTLER (useEffect) ---
-
-  // Kusursuz Kaydırma Takibi (Görsellerin kayarak inmesi ve çizgiler için)
-  useEffect(() => {
-    const handleScroll = () => {
-      const section = document.getElementById("basvuru");
-      if (section) {
-        const rect = section.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const totalScroll = windowHeight + rect.height;
-        const currentScroll = windowHeight - rect.top;
-        
-        let progress = currentScroll / totalScroll;
-        // Scroll hassasiyetini artırarak parçaların tam formun hizasında birleşmesini sağlıyoruz
-        progress = Math.max(0, Math.min(progress * 1.5, 1)); 
-        
-        setScrollProgress(progress);
-      }
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
-    handleScroll(); 
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     let i = 0;
@@ -575,12 +546,85 @@ export default function Home() {
 
 
         {/* ============================================================================== */}
-        {/* YENİ SİSTEM: BLUEPRINT'TEN GERÇEĞE KAYARAK İNEN PARÇALAR (TAM İSTEDİĞİN GİBİ) */}
+        {/* YENİ SİSTEM: %100 STATİK, GÖRSELDEKİ GİBİ KONUMLANDIRILMIŞ BLUEPRINT VE RENDER */}
         {/* ============================================================================== */}
-        <section id="basvuru" style={{ position: "relative", minHeight: "1300px", padding: "120px 0 450px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
+        <section id="basvuru" style={{ position: "relative", minHeight: "1100px", padding: "120px 0 350px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
           
-          {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU */}
-          <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.8)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", borderRadius: "24px", padding: "50px 40px" }}>
+          {/* Arkaplan Işık Efektleri */}
+          <div style={{ position: "absolute", top: "35%", left: "15%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "35%", right: "15%", transform: "translate(50%, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+
+          {/* --- BİREBİR İSTENEN STATİK ARKA PLAN ÇİZİMLERİ VE ÇİZGİLER (Z-INDEX 0) --- */}
+          <div className="hide-on-mobile" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
+            
+            {/* SOL Blueprint (M.E.T.E.) */}
+            <div style={{ position: "absolute", left: "5%", top: "150px", width: "160px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(54, 209, 220, 0.4))" }}>
+              <svg viewBox="0 0 200 300" stroke="#36d1dc" fill="none" strokeWidth="2">
+                <path d="M50,100 C50,60 150,60 150,100" />
+                <circle cx="100" cy="70" r="10" />
+                <rect x="50" y="100" width="100" height="150" rx="10" />
+                <line x1="50" y1="130" x2="150" y2="130" strokeDasharray="6 6" />
+                <line x1="50" y1="220" x2="150" y2="220" strokeDasharray="6 6" />
+                <circle cx="100" cy="175" r="30" strokeDasharray="4 6" />
+                <rect x="20" y="140" width="20" height="80" rx="4" />
+                <rect x="160" y="140" width="20" height="80" rx="4" />
+                <path d="M20,220 L10,260 L40,260 L30,220 Z" />
+                <path d="M160,220 L150,260 L180,260 L170,220 Z" />
+                <line x1="100" y1="250" x2="100" y2="300" />
+              </svg>
+            </div>
+
+            {/* SAĞ Blueprint (DDİAT) */}
+            <div style={{ position: "absolute", right: "5%", top: "150px", width: "180px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(255, 94, 98, 0.4))" }}>
+              <svg viewBox="0 0 240 300" stroke="#ff5e62" fill="none" strokeWidth="2">
+                <path d="M90,40 Q120,10 150,40" />
+                <circle cx="120" cy="50" r="5" />
+                <path d="M70,70 A 60 40 0 0 1 170,70" strokeDasharray="4 6" />
+                <line x1="120" y1="55" x2="120" y2="90" />
+                <polygon points="90,90 150,90 170,140 150,190 90,190 70,140" />
+                <circle cx="120" cy="140" r="25" />
+                <circle cx="120" cy="140" r="40" strokeDasharray="4 6" />
+                <rect x="10" y="110" width="60" height="60" />
+                <line x1="30" y1="110" x2="30" y2="170" />
+                <line x1="50" y1="110" x2="50" y2="170" />
+                <line x1="10" y1="130" x2="70" y2="130" />
+                <line x1="10" y1="150" x2="70" y2="150" />
+                <rect x="170" y="110" width="60" height="60" />
+                <line x1="190" y1="110" x2="190" y2="170" />
+                <line x1="210" y1="110" x2="210" y2="170" />
+                <line x1="170" y1="130" x2="230" y2="130" />
+                <line x1="170" y1="150" x2="230" y2="150" />
+                <line x1="120" y1="190" x2="120" y2="240" />
+              </svg>
+            </div>
+
+            {/* --- STATİK LAZER BAĞLANTI ÇİZGİLERİ --- */}
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}>
+              
+              {/* Sol Mavi Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
+              <path 
+                d="M 12 35 L 12 60 L 30 60 L 30 70" 
+                stroke="#36d1dc" strokeWidth="0.2" fill="none" 
+                style={{ filter: "drop-shadow(0 0 2px #36d1dc)" }} 
+              />
+              <circle cx="12" cy="35" r="0.4" fill="#36d1dc" />
+              <circle cx="30" cy="70" r="0.4" fill="#36d1dc" />
+              <circle cx="12" cy="60" r="0.3" fill="#36d1dc" />
+              
+              {/* Sağ Kırmızı Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
+              <path 
+                d="M 88 35 L 88 60 L 70 60 L 70 70" 
+                stroke="#ff5e62" strokeWidth="0.2" fill="none" 
+                style={{ filter: "drop-shadow(0 0 2px #ff5e62)" }} 
+              />
+              <circle cx="88" cy="35" r="0.4" fill="#ff5e62" />
+              <circle cx="70" cy="70" r="0.4" fill="#ff5e62" />
+              <circle cx="88" cy="60" r="0.3" fill="#ff5e62" />
+            </svg>
+          </div>
+
+          {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU (Z-INDEX 10) */}
+          <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.9)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
               <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 15px rgba(255, 255, 255, 0.3)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
@@ -643,117 +687,15 @@ export default function Home() {
             </form>
           </div>
 
-          {/* ================= ARKA PLAN SİBER ANİMASYON KATMANI (Z-INDEX 0) ================= */}
-          <div className="hide-on-mobile" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
-            
-            {/* --- ADIM 1: SABİT TEKNİK ÇİZİMLER (BLUEPRINTS) EN ÜST KÖŞELERDE --- */}
-            
-            {/* SOL Blueprint (M.E.T.E.) */}
-            <div style={{ position: "absolute", left: "5%", top: "15%", width: "15%", opacity: 0.7, filter: "drop-shadow(0 0 10px rgba(54, 209, 220, 0.4))" }}>
-              <svg viewBox="0 0 200 300" stroke="#36d1dc" fill="none" strokeWidth="3">
-                <path d="M50,100 C50,60 150,60 150,100" />
-                <circle cx="100" cy="70" r="10" />
-                <rect x="50" y="100" width="100" height="150" rx="10" />
-                <line x1="50" y1="130" x2="150" y2="130" strokeDasharray="6 6" />
-                <line x1="50" y1="220" x2="150" y2="220" strokeDasharray="6 6" />
-                <circle cx="100" cy="175" r="30" strokeDasharray="4 6" />
-                <rect x="20" y="140" width="20" height="80" rx="4" />
-                <rect x="160" y="140" width="20" height="80" rx="4" />
-                <path d="M20,220 L10,260 L40,260 L30,220 Z" />
-                <path d="M160,220 L150,260 L180,260 L170,220 Z" />
-                <line x1="100" y1="250" x2="100" y2="300" />
-              </svg>
-            </div>
-
-            {/* SAĞ Blueprint (DDİAT) */}
-            <div style={{ position: "absolute", right: "5%", top: "15%", width: "15%", opacity: 0.7, filter: "drop-shadow(0 0 10px rgba(255, 94, 98, 0.4))" }}>
-              <svg viewBox="0 0 240 300" stroke="#ff5e62" fill="none" strokeWidth="3">
-                <path d="M90,40 Q120,10 150,40" />
-                <circle cx="120" cy="50" r="5" />
-                <path d="M70,70 A 60 40 0 0 1 170,70" strokeDasharray="4 6" />
-                <line x1="120" y1="55" x2="120" y2="90" />
-                <polygon points="90,90 150,90 170,140 150,190 90,190 70,140" />
-                <circle cx="120" cy="140" r="25" />
-                <circle cx="120" cy="140" r="40" strokeDasharray="4 6" />
-                <rect x="10" y="110" width="60" height="60" />
-                <line x1="30" y1="110" x2="30" y2="170" />
-                <line x1="50" y1="110" x2="50" y2="170" />
-                <line x1="10" y1="130" x2="70" y2="130" />
-                <line x1="10" y1="150" x2="70" y2="150" />
-                <rect x="170" y="110" width="60" height="60" />
-                <line x1="190" y1="110" x2="190" y2="170" />
-                <line x1="210" y1="110" x2="210" y2="170" />
-                <line x1="170" y1="130" x2="230" y2="130" />
-                <line x1="170" y1="150" x2="230" y2="150" />
-                <line x1="120" y1="190" x2="120" y2="240" />
-              </svg>
-            </div>
-
-            {/* --- ADIM 2: SCROLL İLE ÇİZİLEN LAZER BAĞLANTI ÇİZGİLERİ --- */}
-            <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-              
-              {/* Sol Mavi Lazer Çizgisi (Çizimden orta merkeze iner) */}
-              <path 
-                d="M 125 350 L 125 600 L 350 850 L 500 850" 
-                stroke="#36d1dc" strokeWidth="2" vectorEffect="non-scaling-stroke" fill="none" strokeDasharray="1500" 
-                strokeDashoffset={1500 - (scrollProgress * 1500)} 
-                style={{ filter: "drop-shadow(0 0 5px #36d1dc)", transition: "stroke-dashoffset 0.1s ease-out" }} 
-              />
-              
-              {/* Sağ Kırmızı Lazer Çizgisi (Çizimden orta merkeze iner) */}
-              <path 
-                d="M 875 350 L 875 600 L 650 850 L 500 850" 
-                stroke="#ff5e62" strokeWidth="2" vectorEffect="non-scaling-stroke" fill="none" strokeDasharray="1500" 
-                strokeDashoffset={1500 - (scrollProgress * 1500)} 
-                style={{ filter: "drop-shadow(0 0 5px #ff5e62)", transition: "stroke-dashoffset 0.1s ease-out" }} 
-              />
-            </svg>
-
-            {/* --- ADIM 3: KAYARAK İNEN VE MERKEZDE BİRLEŞEN GÖRSELLER --- */}
-            {/* Ortak merkez toplanma alanı */}
-            <div style={{ position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", width: "90%", maxWidth: "1200px", height: "450px", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
-              
-              {/* SOL GÖRSEL: hrov-real.png (Yukarı ve soldan aşağı doğru kayar) */}
-              <img 
-                src="/assets/hrov-real.png" 
-                alt="" 
-                style={{ 
-                  position: "absolute", width: "50%", left: 0, bottom: 0, objectFit: "contain",
-                  transform: `translate(${-30 * (1 - scrollProgress)}vw, ${-800 * (1 - scrollProgress)}px)`, 
-                  opacity: scrollProgress > 0.95 ? 0 : 1, // Tam birleştiğinde yok olur, yerini son render'a bırakır
-                  transition: "transform 0.1s ease-out, opacity 0.2s ease-out",
-                  filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.3))"
-                }} 
-              />
-              
-              {/* SAĞ GÖRSEL: satellite-real.png (Yukarı ve sağdan aşağı doğru kayar) */}
-              <img 
-                src="/assets/satellite-real.png" 
-                alt="" 
-                style={{ 
-                  position: "absolute", width: "50%", right: 0, bottom: 0, objectFit: "contain",
-                  transform: `translate(${30 * (1 - scrollProgress)}vw, ${-800 * (1 - scrollProgress)}px)`,
-                  opacity: scrollProgress > 0.95 ? 0 : 1, // Tam birleştiğinde yok olur
-                  transition: "transform 0.1s ease-out, opacity 0.2s ease-out",
-                  filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.3))"
-                }} 
-              />
-              
-              {/* --- ADIM 4: 3. GÖRSELDEKİ NİHAİ SONUÇ (combined-render.png) --- */}
-              {/* Parçalar merkeze ulaştığında bu görsel parlayarak ortaya çıkar */}
-              <img 
-                src="/assets/combined-render.png" 
-                alt="Birleştirilmiş Nihai Sistem" 
-                style={{
-                  position: "absolute", width: "100%", left: 0, bottom: 0, objectFit: "contain",
-                  opacity: scrollProgress > 0.95 ? 1 : 0, 
-                  filter: "drop-shadow(0 0 40px rgba(255,255,255,0.2))",
-                  transition: "opacity 0.4s ease-out"
-                }} 
-              />
-
-            </div>
+          {/* --- EN ALTTAKİ NİHAİ BİRLEŞİK RENDER GÖRSELİ (Z-INDEX 5) --- */}
+          <div className="hide-on-mobile" style={{ position: "absolute", bottom: "40px", left: "50%", transform: "translateX(-50%)", width: "85%", maxWidth: "1100px", zIndex: 5, pointerEvents: "none" }}>
+            <img 
+              src="/assets/combined-render.png" 
+              alt="Birleşik Sistem Renderı" 
+              style={{ width: "100%", height: "auto", filter: "drop-shadow(0 0 30px rgba(255,255,255,0.1))" }} 
+            />
           </div>
+
         </section>
       </div>
 
