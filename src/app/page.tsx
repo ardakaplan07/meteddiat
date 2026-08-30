@@ -24,7 +24,7 @@ export default function Home() {
   // UI Kontrolleri
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<"login" | "register">("login");
+  const [authTab, setAuthTab] = useState<"login" | "register" | "forgot">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   
@@ -38,6 +38,11 @@ export default function Home() {
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass] = useState("");
+  
+  // Şifremi Unuttum Formu
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetNewPass, setResetNewPass] = useState("");
+
   const [authMsg, setAuthMsg] = useState({ text: "", type: "" });
 
   // Veritabanı State'leri
@@ -53,6 +58,11 @@ export default function Home() {
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
   const [sysNameInput, setSysNameInput] = useState("");
   const [sysStatusInput, setSysStatusInput] = useState("");
+
+  // --- E-POSTA DOĞRULAMA FONKSİYONU ---
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   // --- EFEKTLER (useEffect) ---
 
@@ -88,19 +98,28 @@ export default function Home() {
       return () => clearInterval(interval);
     }
   }, [isDashboardOpen]);
-  // Sekme veya tarayıcı direkt kapatılırsa otomatik çevrimdışı yap
+
+  // SEKME KAPATILDIĞINDA OTOMATİK ÇEVRİMDIŞI YAPMA (Keepalive ile Kesin Çözüm)
   useEffect(() => {
-    const handleTabClose = () => {
-      if (currentUser && currentUser !== "Arda Kaplan (Admin)") {
-        // Tarayıcı kapanırken buluta 'çevrimdışı' sinyali gönder (Senkron çalışması için .then() kullanıyoruz)
-        supabase.from('users').update({ is_online: false }).eq('name', currentUser).then();
+    const handleBeforeUnload = () => {
+      if (currentUser && currentUser !== "Admin") {
+        const url = `${SUPABASE_URL}/rest/v1/users?name=eq.${encodeURIComponent(currentUser)}`;
+        fetch(url, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ is_online: false }),
+          keepalive: true // Tarayıcı kapansa bile isteğin Supabase'e ulaşmasını sağlar
+        });
       }
     };
 
-    window.addEventListener('beforeunload', handleTabClose);
-    return () => {
-      window.removeEventListener('beforeunload', handleTabClose);
-    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [currentUser]);
 
 
@@ -130,6 +149,12 @@ export default function Home() {
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (!isValidEmail(regEmail)) {
+      setAuthMsg({ text: "Geçersiz e-posta formatı! Lütfen geçerli bir adres girin.", type: "error" });
+      return;
+    }
+
     if (regEmail === ADMIN_EMAIL) {
       setAuthMsg({ text: "Bu e-posta adresi yönetici hesabıdır, kullanılamaz!", type: "error" });
       return;
@@ -150,9 +175,14 @@ export default function Home() {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
 
+    if (!isValidEmail(loginEmail)) {
+      setAuthMsg({ text: "Lütfen geçerli bir e-posta adresi girin.", type: "error" });
+      return;
+    }
+
     if (loginEmail === ADMIN_EMAIL && loginPass === ADMIN_PASS) {
       setAuthMsg({ text: "", type: "" });
-      setCurrentUser("Arda Kaplan (Admin)");
+      setCurrentUser("Admin");
       setIsLoginModalOpen(false);
       setIsAdminPanelOpen(true);
       return;
@@ -186,8 +216,33 @@ export default function Home() {
     }
   };
 
+  const handleForgotPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!isValidEmail(resetEmail)) {
+      setAuthMsg({ text: "Lütfen geçerli bir e-posta adresi girin.", type: "error" });
+      return;
+    }
+
+    const { data: users, error: searchError } = await supabase.from('users').select('*').eq('email', resetEmail);
+    
+    if (searchError || !users || users.length === 0) {
+      setAuthMsg({ text: "Sistemde böyle bir e-posta adresi bulunamadı.", type: "error" });
+      return;
+    }
+
+    const { error: updateError } = await supabase.from('users').update({ password: resetNewPass }).eq('email', resetEmail);
+
+    if (!updateError) {
+      setAuthMsg({ text: "Şifreniz başarıyla değiştirildi. Giriş yapabilirsiniz.", type: "success" });
+      setResetEmail(""); setResetNewPass("");
+      setTimeout(() => { setAuthTab("login"); setAuthMsg({ text: "", type: "" }); }, 2000);
+    } else {
+      setAuthMsg({ text: "Şifre güncellenirken bir hata oluştu.", type: "error" });
+    }
+  };
+
   const handleLogout = async () => {
-    if (currentUser !== "Arda Kaplan (Admin)") {
+    if (currentUser !== "Admin") {
       await supabase.from('users').update({ is_online: false }).eq('name', currentUser);
     }
     setIsDashboardOpen(false);
@@ -207,7 +262,7 @@ export default function Home() {
     if (!taskName || !taskAssignee) return alert("Lütfen görev adı ve sorumlu kişi girin.");
 
     const { error } = await supabase.from('tasks').insert([{ 
-      id: Date.now(), // <-- ÇÖZÜM BURADA: Manuel ID gönderiyoruz
+      id: Date.now(), 
       name: taskName, 
       assignee: taskAssignee, 
       status: taskStatus, 
@@ -236,7 +291,7 @@ export default function Home() {
     if (!sysNameInput || !sysStatusInput) return;
     
     const { error } = await supabase.from('system_status').insert([{ 
-      id: Date.now(), // <-- ÇÖZÜM BURADA: Manuel ID gönderiyoruz
+      id: Date.now(), 
       name: sysNameInput, 
       status: sysStatusInput 
     }]);
@@ -299,7 +354,7 @@ export default function Home() {
             <li><a href="#iletisim" onClick={() => setIsMobileMenuOpen(false)}>Bize Ulaşın</a></li>
             <li><a href="#basvuru" className="btn-outline" onClick={() => setIsMobileMenuOpen(false)}>Sisteme Katıl</a></li>
             <li>
-              <button className="btn-glow" onClick={() => { setIsLoginModalOpen(true); setIsMobileMenuOpen(false); setAuthMsg({text:"", type:""}); }}>
+              <button className="btn-glow" onClick={() => { setIsLoginModalOpen(true); setIsMobileMenuOpen(false); setAuthTab('login'); setAuthMsg({text:"", type:""}); }}>
                 <i className="fa-solid fa-terminal"></i> Üye Paneli
               </button>
             </li>
@@ -420,16 +475,33 @@ export default function Home() {
           </div>
         </section>
 
+        {/* DETAYLI BAŞVURU FORMU */}
         <section id="basvuru" className="apply-section">
-          <div className="form-container">
+          <div className="form-container" style={{ maxWidth: "700px" }}>
             <div className="form-header"><h2>Sisteme Katıl</h2><p>Yeni yetenekler arıyoruz. Hangi ekibe katılmak istersin?</p></div>
             <form action="https://formspree.io/f/mnpawwdq" method="POST" className="cyber-form">
-              <div className="input-group"><input type="text" name="Basvuru_Yapan_Kişi" required placeholder=" " /><label>Ad Soyad</label></div>
-              <div className="input-group"><input type="email" name="Basvuru_Eposta" required placeholder=" " /><label>E-Posta</label></div>
-              <div className="input-group select-group">
-                <select name="Tercih_Edilen_Ekip" required defaultValue=""><option value="" disabled>Hedef Ekip Seçin</option><option value="M.E.T.E.">M.E.T.E.</option><option value="DDİAT">DDİAT</option></select>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Ad_Soyad" required placeholder=" " /><label>Ad Soyad</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta</label></div>
               </div>
-              <div className="input-group"><textarea name="Basvuru_Nedeni" required rows={3} placeholder=" "></textarea><label>Neden bizimle olmak istiyorsun?</label></div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginTop: "25px" }}>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="tel" name="Telefon" required placeholder=" " /><label>Telefon Numarası</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Universite_Bolum" required placeholder=" " /><label>Üniversite & Bölüm</label></div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginTop: "25px" }}>
+                <div className="input-group select-group" style={{ marginBottom: "0" }}>
+                  <select name="Sinif" required defaultValue=""><option value="" disabled>Sınıfınızı Seçin</option><option value="Hazırlık">Hazırlık</option><option value="1. Sınıf">1. Sınıf</option><option value="2. Sınıf">2. Sınıf</option><option value="3. Sınıf">3. Sınıf</option><option value="4. Sınıf">4. Sınıf</option><option value="Yüksek Lisans / Mezun">Yüksek Lisans / Mezun</option></select>
+                </div>
+                <div className="input-group select-group" style={{ marginBottom: "0" }}>
+                  <select name="Tercih_Edilen_Ekip" required defaultValue=""><option value="" disabled>Hedef Ekip Seçin</option><option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım)</option><option value="DDİAT">DDİAT (Yapay Zeka)</option></select>
+                </div>
+              </div>
+
+              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={3} placeholder=" "></textarea><label>Neden bizimle olmak istiyorsun? Neler yapabilirsin?</label></div>
+              
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
               <button type="submit" className="btn-glow w-100">BAŞVURU YAP //{">"}</button>
             </form>
@@ -437,29 +509,50 @@ export default function Home() {
         </section>
       </div>
 
+      {/* --- ÜYE PANELİ MODALI --- */}
       {isLoginModalOpen && (
         <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setIsLoginModalOpen(false) }}>
           <div className="modal-box">
             <span className="close-modal" onClick={() => setIsLoginModalOpen(false)}>&times;</span>
             <div className="modal-header"><i className="fa-solid fa-shield-halved fa-2x"></i><h2>Gizli Ağ Erişimi</h2><p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p></div>
-            <div className="auth-tabs">
-              <button className={`tab-btn ${authTab === 'login' ? 'active' : ''}`} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Yap</button>
-              <button className={`tab-btn ${authTab === 'register' ? 'active' : ''}`} onClick={() => {setAuthTab('register'); setAuthMsg({text:"", type:""})}}>Kayıt Ol</button>
-            </div>
+            
+            {authTab !== "forgot" && (
+              <div className="auth-tabs">
+                <button className={`tab-btn ${authTab === 'login' ? 'active' : ''}`} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Yap</button>
+                <button className={`tab-btn ${authTab === 'register' ? 'active' : ''}`} onClick={() => {setAuthTab('register'); setAuthMsg({text:"", type:""})}}>Kayıt Ol</button>
+              </div>
+            )}
+
             {authTab === 'login' ? (
               <form className="auth-form active" onSubmit={handleLogin}>
                 <div className="input-group"><input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} /><label>Kayıtlı E-Posta Adresi</label></div>
-                <div className="input-group"><input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} /><label>Parola</label></div>
+                <div className="input-group" style={{ marginBottom: "10px" }}><input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} /><label>Parola</label></div>
+                
+                <div style={{ textAlign: "right", marginBottom: "20px" }}>
+                  <span style={{ fontSize: "0.8rem", color: "var(--primary-glow)", cursor: "pointer" }} onClick={() => {setAuthTab('forgot'); setAuthMsg({text:"", type:""})}}>Şifremi Unuttum?</span>
+                </div>
+
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
-                <div className="admin-note"><i className="fa-solid fa-lock"></i><span>Sisteme giriş izniniz <b>Admin (Arda Kaplan)</b> tarafından doğrulanıp aktifleştirilmektedir.</span></div>
+                <div className="admin-note"><i className="fa-solid fa-lock"></i><span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span></div>
               </form>
-            ) : (
+            ) : authTab === 'register' ? (
               <form className="auth-form active" onSubmit={handleRegister}>
                 <div className="input-group"><input type="text" required placeholder=" " value={regName} onChange={(e) => setRegName(e.target.value)} /><label>Adınız Soyadınız</label></div>
-                <div className="input-group"><input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} /><label>E-Posta Adresi (Üniversite/Kişisel)</label></div>
+                <div className="input-group"><input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} /><label>E-Posta Adresi (Geçerli Format)</label></div>
                 <div className="input-group"><input type="password" required placeholder=" " value={regPass} onChange={(e) => setRegPass(e.target.value)} /><label>Bir Parola Belirleyin</label></div>
                 <button type="submit" className="btn-glow w-100">ONAY İÇİN BAŞVUR</button>
+                {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
+              </form>
+            ) : (
+              <form className="auth-form active" onSubmit={handleForgotPassword}>
+                <h3 style={{ color: "#fff", marginBottom: "20px", textAlign: "center", fontSize: "1rem" }}>Şifre Yenileme</h3>
+                <div className="input-group"><input type="email" required placeholder=" " value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} /><label>Sistemdeki E-Posta Adresiniz</label></div>
+                <div className="input-group"><input type="password" required placeholder=" " value={resetNewPass} onChange={(e) => setResetNewPass(e.target.value)} /><label>Yeni Parola Belirleyin</label></div>
+                <button type="submit" className="btn-glow w-100">ŞİFREMİ GÜNCELLE</button>
+                <div style={{ textAlign: "center", marginTop: "15px" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Ekranına Dön</span>
+                </div>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
               </form>
             )}
@@ -467,6 +560,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* --- GİZLİ ADMİN PANELİ --- */}
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
@@ -503,6 +597,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* --- ÜYE KONTROL MERKEZİ (DASHBOARD) --- */}
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
@@ -512,7 +607,6 @@ export default function Home() {
           
           <div className="dash-grid" style={{ padding: "20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", maxWidth: "1400px", margin: "0 auto" }}>
             
-            {/* Sistem Durumu */}
             <div className="dash-card" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-server"></i> Sistem Durumu Bildir</h3>
               <div className="flex-col-mobile" style={{ display: "flex", gap: "10px" }}>
@@ -524,10 +618,7 @@ export default function Home() {
               <div style={{ marginTop: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 {systemStatusDB.map((sys, idx) => (
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                    <div>
-                      <span style={{ color: '#fff' }}>{sys.name}</span>
-                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
-                    </div>
+                    <div><span style={{ color: '#fff' }}>{sys.name}</span><div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div></div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
@@ -537,14 +628,13 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Aktif İstasyonlar */}
             <div className="dash-card" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-users"></i> Aktif İstasyonlar</h3>
               
               <div style={{ marginTop: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                  <span>Arda Kaplan (Admin)</span>
-                  <span className="text-green">[{currentUser.includes("Admin") ? "Şu An Aktif" : "Yetkili"}]</span>
+                  <span>Admin</span>
+                  <span className="text-green">[{currentUser === "Admin" ? "Şu An Aktif" : "Yetkili"}]</span>
                 </div>
                 {approvedUsers.map((user, idx) => {
                   const isOnline = user.name === currentUser || user.is_online;
@@ -558,7 +648,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Görev Ekleme ve Listeler */}
             <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-plus"></i> Yeni Görev Planla</h3>
               <div className="flex-col-mobile" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
