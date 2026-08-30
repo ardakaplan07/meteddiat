@@ -46,18 +46,27 @@ export default function Home() {
   const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
   const [tasksDB, setTasksDB] = useState<any[]>([]);
   const [systemStatusDB, setSystemStatusDB] = useState<any[]>([]);
-  
-  // YENİ EKLENEN: LOG STATE'İ
   const [logsDB, setLogsDB] = useState<any[]>([]);
 
   const [taskName, setTaskName] = useState("");
   const [taskAssignee, setTaskAssignee] = useState("");
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
+  const [taskPriority, setTaskPriority] = useState("Normal"); // YENİ
+  const [taskDeadline, setTaskDeadline] = useState(""); // YENİ
+  
   const [sysNameInput, setSysNameInput] = useState("");
   const [sysStatusInput, setSysStatusInput] = useState("");
 
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isOverdue = (dateStr: string) => {
+    if (!dateStr) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(dateStr);
+    return target < today;
   };
 
   useEffect(() => {
@@ -83,13 +92,13 @@ export default function Home() {
       fetchApprovedUsers();
       fetchTasks();
       fetchSystemStatus();
-      fetchLogs(); // Logları getir
+      fetchLogs();
       
       const interval = setInterval(() => {
         fetchApprovedUsers();
         fetchTasks();
         fetchSystemStatus();
-        fetchLogs(); // 5 saniyede bir logları tazele
+        fetchLogs();
       }, 5000);
       return () => clearInterval(interval);
     }
@@ -136,10 +145,7 @@ export default function Home() {
     };
   }, [currentUser]);
 
-
-  // --- YENİ EKLENEN LOG FONKSİYONLARI ---
   const fetchLogs = async () => {
-    // Son 50 logu id'ye göre azalan (en yeni en üstte) şeklinde çek
     const { data, error } = await supabase.from('system_logs').select('*').order('id', { ascending: false }).limit(50);
     if (!error && data) setLogsDB(data);
   };
@@ -149,7 +155,6 @@ export default function Home() {
     const { error } = await supabase.from('system_logs').insert([{ id: Date.now(), message: msg, time: timeStr }]);
     if (!error) fetchLogs();
   };
-
 
   const fetchAllUsers = async () => {
     const { data, error } = await supabase.from('users').select('*');
@@ -230,10 +235,7 @@ export default function Home() {
       setAuthMsg({ text: "Erişim Reddedildi: Hesabınız henüz Admin tarafından onaylanmamış.", type: "error" });
     } else if (user.status === 'approved') {
       await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
-      
-      // LOG EKLEMESİ
       addLog(`[AUTH] ${user.name} istasyonu ağa bağlandı.`);
-
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
       setTimeout(() => {
         setIsLoginModalOpen(false);
@@ -291,15 +293,18 @@ export default function Home() {
       name: taskName, 
       assignee: taskAssignee, 
       status: taskStatus, 
+      priority: taskPriority, 
+      deadline: taskDeadline,
       is_completed: false 
     }]);
 
     if (!error) {
-      addLog(`[GÖREV] ${currentUser}, '${taskAssignee}' için yeni görev atadı: ${taskName}`);
-      setTaskName(""); setTaskAssignee("");
+      addLog(`[GÖREV] ${currentUser}, '${taskAssignee}' için yeni görev atadı: ${taskName} [${taskPriority}]`);
+      setTaskName(""); setTaskAssignee(""); setTaskDeadline(""); setTaskPriority("Normal");
       fetchTasks();
     } else {
-      alert("Görev Buluta Eklenemedi! Hata detayı konsolda.");
+      console.error(error);
+      alert("Görev Buluta Eklenemedi! Lütfen 'tasks' tablosuna 'priority' ve 'deadline' sütunlarını eklediğinizden emin olun.");
     }
   };
 
@@ -313,19 +318,15 @@ export default function Home() {
 
   const handleAddSystemStatus = async () => {
     if (!sysNameInput || !sysStatusInput) return;
-    
     const { error } = await supabase.from('system_status').insert([{ 
       id: Date.now(), 
       name: sysNameInput, 
       status: sysStatusInput 
     }]);
-
     if (!error) {
       addLog(`[SİSTEM] ${currentUser}, '${sysNameInput}' sistemini ekledi. Durum: ${sysStatusInput}`);
       setSysNameInput(""); setSysStatusInput("");
       fetchSystemStatus();
-    } else {
-      alert("Sistem durumu buluta eklenemedi!");
     }
   };
 
@@ -503,67 +504,36 @@ export default function Home() {
         </section>
 
         <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
-          
           <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
-          
           <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
-            
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
               <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 20px rgba(54, 209, 220, 0.8)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
               <p style={{ color: "#a9a9bc", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
             </div>
-            
             <form action="https://formspree.io/f/mnpawwdq" method="POST" style={{ position: "relative" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
-                  <label style={{ color: "#888" }}>Ad Soyad</label>
-                </div>
-                <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
-                  <label style={{ color: "#888" }}>E-Posta Adresi</label>
-                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Ad Soyad</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>E-Posta Adresi</label></div>
               </div>
-
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
-                  <label style={{ color: "#888" }}>Telefon Numarası</label>
-                </div>
-                <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
-                  <label style={{ color: "#888" }}>Üniversite & Bölüm</label>
-                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Telefon Numarası</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Üniversite & Bölüm</label></div>
               </div>
-
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
                   <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
-                    <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option>
-                    <option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option>
-                    <option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option>
-                    <option value="2. Sınıf" style={{ background: "#111" }}>2. Sınıf</option>
-                    <option value="3. Sınıf" style={{ background: "#111" }}>3. Sınıf</option>
-                    <option value="4. Sınıf" style={{ background: "#111" }}>4. Sınıf</option>
-                    <option value="Yüksek Lisans / Mezun" style={{ background: "#111" }}>Yüksek Lisans / Mezun</option>
+                    <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option><option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option><option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option><option value="2. Sınıf" style={{ background: "#111" }}>2. Sınıf</option><option value="3. Sınıf" style={{ background: "#111" }}>3. Sınıf</option><option value="4. Sınıf" style={{ background: "#111" }}>4. Sınıf</option><option value="Yüksek Lisans / Mezun" style={{ background: "#111" }}>Yüksek Lisans / Mezun</option>
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
                   <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
-                    <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option>
-                    <option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option>
-                    <option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
+                    <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option><option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option><option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
                   </select>
                 </div>
               </div>
-
-              <div className="input-group" style={{ marginTop: "25px" }}>
-                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea>
-                <label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label>
-              </div>
-              
+              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea><label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label></div>
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
               <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
             </form>
@@ -588,11 +558,7 @@ export default function Home() {
               <form className="auth-form active" onSubmit={handleLogin}>
                 <div className="input-group"><input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} /><label>Kayıtlı E-Posta Adresi</label></div>
                 <div className="input-group" style={{ marginBottom: "10px" }}><input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} /><label>Parola</label></div>
-                
-                <div style={{ textAlign: "right", marginBottom: "20px" }}>
-                  <span style={{ fontSize: "0.8rem", color: "var(--primary-glow)", cursor: "pointer" }} onClick={() => {setAuthTab('forgot'); setAuthMsg({text:"", type:""})}}>Şifremi Unuttum?</span>
-                </div>
-
+                <div style={{ textAlign: "right", marginBottom: "20px" }}><span style={{ fontSize: "0.8rem", color: "var(--primary-glow)", cursor: "pointer" }} onClick={() => {setAuthTab('forgot'); setAuthMsg({text:"", type:""})}}>Şifremi Unuttum?</span></div>
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
                 <div className="admin-note"><i className="fa-solid fa-lock"></i><span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span></div>
@@ -611,9 +577,7 @@ export default function Home() {
                 <div className="input-group"><input type="email" required placeholder=" " value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} /><label>Sistemdeki E-Posta Adresiniz</label></div>
                 <div className="input-group"><input type="password" required placeholder=" " value={resetNewPass} onChange={(e) => setResetNewPass(e.target.value)} /><label>Yeni Parola Belirleyin</label></div>
                 <button type="submit" className="btn-glow w-100">ŞİFREMİ GÜNCELLE</button>
-                <div style={{ textAlign: "center", marginTop: "15px" }}>
-                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Ekranına Dön</span>
-                </div>
+                <div style={{ textAlign: "center", marginTop: "15px" }}><span style={{ fontSize: "0.85rem", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Ekranına Dön</span></div>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
               </form>
             )}
@@ -624,10 +588,7 @@ export default function Home() {
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
-            <div className="admin-header">
-              <div><h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2><p>Ağ Yöneticisi: {currentUser}</p></div>
-              <button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button>
-            </div>
+            <div className="admin-header"><div><h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2><p>Ağ Yöneticisi: {currentUser}</p></div><button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button></div>
             <div className="admin-content">
               <h3>Bekleyen Başvurular</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
@@ -673,14 +634,10 @@ export default function Home() {
                 <input type="text" placeholder="Durum (Örn: Bağlı, 45°C)" value={sysStatusInput} onChange={(e) => setSysStatusInput(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
                 <button className="btn-glow" onClick={handleAddSystemStatus}>Durum Ekle</button>
               </div>
-              
               <div style={{ marginTop: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 {systemStatusDB.map((sys, idx) => (
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                    <div>
-                      <span style={{ color: '#fff' }}>{sys.name}</span>
-                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
-                    </div>
+                    <div><span style={{ color: '#fff' }}>{sys.name}</span><div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div></div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
@@ -692,25 +649,21 @@ export default function Home() {
 
             <div className="dash-card" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-users"></i> Aktif İstasyonlar</h3>
-              
               <div style={{ marginTop: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                  <span>Admin</span>
-                  <span className="text-green">[{currentUser === "Admin" ? "Şu An Aktif" : "Yetkili"}]</span>
+                  <span>Admin</span><span className="text-green">[{currentUser === "Admin" ? "Şu An Aktif" : "Yetkili"}]</span>
                 </div>
                 {approvedUsers.map((user, idx) => {
                   const isOnline = user.name === currentUser || user.is_online;
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
-                      <span>{user.name}</span>
-                      <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Uzakta/Çevrimdışı'}]</span>
+                      <span>{user.name}</span><span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Uzakta/Çevrimdışı'}]</span>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* --- YENİ EKLENEN CANLI TERMİNAL LOG MODÜLÜ --- */}
             <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-terminal"></i> Canlı Terminal Log (Operasyon Geçmişi)</h3>
               <div style={{ background: "#050505", border: "1px solid #1a1a24", borderRadius: "6px", padding: "15px", height: "250px", overflowY: "auto", fontFamily: "var(--font-code)", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -721,36 +674,45 @@ export default function Home() {
                     <span style={{ color: "#d1d5db" }}>{log.message}</span>
                   </div>
                 ))}
-                {logsDB.length === 0 && <span style={{ color: "#666" }}>Sistem logları bekleniyor... (Supabase'de 'system_logs' tablosu oluşturmayı unutmayın)</span>}
+                {logsDB.length === 0 && <span style={{ color: "#666" }}>Sistem logları bekleniyor...</span>}
               </div>
             </div>
 
+            {/* --- YENİ EKLENEN ÖNCELİK VE DEADLINE SİSTEMİ --- */}
             <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-plus"></i> Yeni Görev Planla</h3>
-              <div className="flex-col-mobile" style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
-                <input type="text" placeholder="Görev Adı" value={taskName} onChange={(e) => setTaskName(e.target.value)} style={{ flex: 2, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
-                <input type="text" placeholder="Sorumlu" value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
-                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} style={{ flex: 1, padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginBottom: "15px" }}>
+                <input type="text" placeholder="Görev Adı" value={taskName} onChange={(e) => setTaskName(e.target.value)} style={{ padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <input type="text" placeholder="Sorumlu" value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} style={{ padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }} />
+                <select value={taskStatus} onChange={(e) => setTaskStatus(e.target.value)} style={{ padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }}>
                   <option value="Devam Ediyor">Devam Ediyor</option>
                   <option value="Test Ediliyor">Test Ediliyor</option>
                 </select>
+                <select value={taskPriority} onChange={(e) => setTaskPriority(e.target.value)} style={{ padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px" }}>
+                  <option value="Kritik">Kritik Öncelik</option>
+                  <option value="Normal">Normal Öncelik</option>
+                  <option value="Düşük">Düşük Öncelik</option>
+                </select>
+                <input type="date" value={taskDeadline} onChange={(e) => setTaskDeadline(e.target.value)} style={{ padding: "10px", background: "#0a0a0f", color: "white", border: "1px solid #333", borderRadius: "4px", colorScheme: "dark" }} />
                 <button className="btn-glow" onClick={handleAddTask}>Yayınla</button>
               </div>
 
               <h3 style={{ marginTop: '30px' }}><i className="fa-solid fa-list-check"></i> Aktif Görevler</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
-                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Durum</th><th>İşlem</th></tr></thead>
+                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Öncelik</th><th>Bitiş (Deadline)</th><th>Durum</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {tasksDB.filter(t => !t.is_completed).map(task => (
                       <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
                         <td style={{ padding: "10px 0" }}>{task.name}</td>
                         <td>{task.assignee}</td>
+                        <td style={{ color: task.priority === 'Kritik' ? '#ff5e62' : task.priority === 'Düşük' ? '#888' : '#36d1dc' }}>{task.priority === 'Kritik' ? '🔴 Kritik' : task.priority === 'Düşük' ? '⚪ Düşük' : '🔵 Normal'}</td>
+                        <td style={{ color: isOverdue(task.deadline) ? '#ff5e62' : '#d1d5db', animation: isOverdue(task.deadline) ? 'pulse 1.5s infinite' : 'none' }}>{task.deadline ? new Date(task.deadline).toLocaleDateString('tr-TR') : '-'}</td>
                         <td style={{ color: task.status === 'Test Ediliyor' ? '#f59e0b' : '#36d1dc' }}>{task.status}</td>
                         <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
                       </tr>
                     ))}
-                    {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={4} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
+                    {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={6} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
                   </tbody>
                 </table>
               </div>
