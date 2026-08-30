@@ -430,7 +430,7 @@ export default function Home() {
         </div>
 
         {/* SAĞ: MODEL UYDU CAD Tel Kafes */}
-        <div style={{ position: "absolute", right: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
+        <div style={{ position: "absolute", right: "0%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
           <svg viewBox="0 0 300 400" stroke="#ff5e62" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(255,94,98,0.6))" }}>
             
             {/* Uydu Çekirdeği (Merkezde büyür) */}
