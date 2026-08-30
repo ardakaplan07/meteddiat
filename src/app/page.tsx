@@ -21,26 +21,32 @@ const TYPING_TEXT_FULL = "Geleceğin donanımını ve algoritmasını üretiyoru
 export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
+  // UI Kontrolleri
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register" | "forgot">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   
+  // Hologram ve Animasyonlar
   const [typedText, setTypedText] = useState("");
   const [glitchShadow, setGlitchShadow] = useState("none");
+  const [scrollProgress, setScrollProgress] = useState(0); // HOLOGRAM İÇİN SCROLL TAKİBİ
 
+  // Auth Formları
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass] = useState("");
   
+  // Şifremi Unuttum Formu
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPass, setResetNewPass] = useState("");
 
   const [authMsg, setAuthMsg] = useState({ text: "", type: "" });
 
+  // Veritabanı State'leri
   const [currentUser, setCurrentUser] = useState("");
   const [allUsersDB, setAllUsersDB] = useState<any[]>([]);
   const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
@@ -48,11 +54,12 @@ export default function Home() {
   const [systemStatusDB, setSystemStatusDB] = useState<any[]>([]);
   const [logsDB, setLogsDB] = useState<any[]>([]);
 
+  // Dashboard Formları
   const [taskName, setTaskName] = useState("");
   const [taskAssignee, setTaskAssignee] = useState("");
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
-  const [taskPriority, setTaskPriority] = useState("Normal"); // YENİ
-  const [taskDeadline, setTaskDeadline] = useState(""); // YENİ
+  const [taskPriority, setTaskPriority] = useState("Normal");
+  const [taskDeadline, setTaskDeadline] = useState("");
   
   const [sysNameInput, setSysNameInput] = useState("");
   const [sysStatusInput, setSysStatusInput] = useState("");
@@ -68,6 +75,19 @@ export default function Home() {
     const target = new Date(dateStr);
     return target < today;
   };
+
+  // --- EFEKTLER (useEffect) ---
+
+  // Scroll Takibi (Hologram Parçalarının Birleşmesi İçin)
+  useEffect(() => {
+    const handleScroll = () => {
+      // 0 ile 1 arasında bir değer (600px kaydırmada parçalar tamamen birleşir)
+      const progress = Math.min(window.scrollY / 600, 1);
+      setScrollProgress(progress);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     let i = 0;
@@ -104,6 +124,7 @@ export default function Home() {
     }
   }, [isDashboardOpen]);
 
+  // ÇEVRİMİÇİ/ÇEVRİMDIŞI KESİN ÇÖZÜMÜ
   useEffect(() => {
     if (!currentUser || currentUser === "Admin") return;
 
@@ -360,7 +381,59 @@ export default function Home() {
     <>
       <div className="code-bg-overlay"></div>
 
-      <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block" }}>
+      {/* ============================================================================== */}
+      {/* 3D HOLOGRAM ANİMASYON SİSTEMİ (SCROLL İLE BİRLEŞEN PARÇALAR) */}
+      {/* ============================================================================== */}
+      <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+        
+        {/* SOL HOLOGRAM: M.E.T.E. (Otonom Araç Tel Kafesi - Turkuaz) */}
+        <div style={{ position: "absolute", left: "10%", top: "45%", width: "100px", height: "100px", transformStyle: "preserve-3d", perspective: "1000px", opacity: 0.2 + (0.8 * scrollProgress) }}>
+          
+          {/* Merkez Modül */}
+          <div style={{ position: "absolute", width: "80px", height: "140px", border: "2px solid rgba(54, 209, 220, 0.8)", boxShadow: "0 0 15px rgba(54, 209, 220, 0.5), inset 0 0 10px rgba(54, 209, 220, 0.3)", borderRadius: "8px", background: "rgba(54, 209, 220, 0.05)",
+            transform: `translate3d(${ -400 * (1 - scrollProgress) }px, ${ -300 * (1 - scrollProgress) }px, ${ 200 * (1 - scrollProgress) }px) rotateX(${ 90 * (1 - scrollProgress) }deg) rotateY(${ 180 * (1 - scrollProgress) }deg)`
+          }}></div>
+          
+          {/* Sol Motor/Güneş Paneli */}
+          <div style={{ position: "absolute", width: "40px", height: "100px", border: "1px solid rgba(54, 209, 220, 0.6)", boxShadow: "0 0 10px rgba(54, 209, 220, 0.4)", background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(54, 209, 220, 0.2) 2px, rgba(54, 209, 220, 0.2) 4px)",
+            transform: `translate3d(${ -60 - 500 * (1 - scrollProgress) }px, ${ 20 + 400 * (1 - scrollProgress) }px, ${ -300 * (1 - scrollProgress) }px) rotateZ(${ -60 * (1 - scrollProgress) }deg) rotateY(${ 45 * scrollProgress }deg)`
+          }}></div>
+          
+          {/* Sağ Motor/Güneş Paneli */}
+          <div style={{ position: "absolute", width: "40px", height: "100px", border: "1px solid rgba(54, 209, 220, 0.6)", boxShadow: "0 0 10px rgba(54, 209, 220, 0.4)", background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(54, 209, 220, 0.2) 2px, rgba(54, 209, 220, 0.2) 4px)",
+            transform: `translate3d(${ 100 + 400 * (1 - scrollProgress) }px, ${ 20 - 500 * (1 - scrollProgress) }px, ${ 400 * (1 - scrollProgress) }px) rotateZ(${ 90 * (1 - scrollProgress) }deg) rotateY(${ -45 * scrollProgress }deg)`
+          }}></div>
+        </div>
+
+        {/* SAĞ HOLOGRAM: DDİAT (Yapay Zeka Çekirdeği ve Yörüngeler - Kırmızı) */}
+        <div style={{ position: "absolute", right: "20%", top: "45%", width: "100px", height: "100px", transformStyle: "preserve-3d", perspective: "1000px", opacity: 0.2 + (0.8 * scrollProgress) }}>
+          
+          {/* AI Core (Merkez Çekirdek) */}
+          <div style={{ position: "absolute", width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255, 94, 98, 0.9)", boxShadow: "0 0 40px rgba(255, 94, 98, 1)",
+            transform: `translate3d(${ 300 * (1 - scrollProgress) }px, ${ 200 * (1 - scrollProgress) }px, 0px) scale(${1 + 3 * (1 - scrollProgress)})`
+          }}></div>
+          
+          {/* Yörünge 1 (Veri Halkası) */}
+          <div style={{ position: "absolute", width: "140px", height: "140px", border: "2px dashed rgba(255, 94, 98, 0.6)", borderRadius: "50%", top: "-50px", left: "-50px",
+            transform: `translate3d(${ -300 * (1 - scrollProgress) }px, ${ -400 * (1 - scrollProgress) }px, ${ 300 * (1 - scrollProgress) }px) rotateX(${70 + 180 * (1 - scrollProgress)}deg) rotateY(${20 * (1 - scrollProgress)}deg)`
+          }}></div>
+          
+          {/* Yörünge 2 (Dış Katman) */}
+          <div style={{ position: "absolute", width: "200px", height: "200px", border: "1px solid rgba(255, 94, 98, 0.4)", borderRadius: "50%", top: "-80px", left: "-80px",
+            transform: `translate3d(${ 500 * (1 - scrollProgress) }px, ${ -200 * (1 - scrollProgress) }px, ${ -400 * (1 - scrollProgress) }px) rotateY(${70 + 360 * (1 - scrollProgress)}deg) rotateZ(${45 * (1 - scrollProgress)}deg)`
+          }}></div>
+          
+          {/* Geometrik Node (Matris Küp) */}
+          <div style={{ position: "absolute", width: "90px", height: "90px", border: "1px solid rgba(255, 94, 98, 0.3)", top: "-25px", left: "-25px",
+            transform: `translate3d(${ -400 * (1 - scrollProgress) }px, ${ 500 * (1 - scrollProgress) }px, ${ 500 * (1 - scrollProgress) }px) rotateX(${45 + 180 * (1 - scrollProgress)}deg) rotateZ(${45 + 180 * (1 - scrollProgress)}deg)`
+          }}></div>
+        </div>
+      </div>
+      {/* ============================================================================== */}
+
+
+      {/* --- ANA SAYFA --- */}
+      <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "relative", zIndex: 1 }}>
         
         <nav className="navbar">
           <div className="nav-brand">
@@ -678,7 +751,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* --- YENİ EKLENEN ÖNCELİK VE DEADLINE SİSTEMİ --- */}
             <div className="dash-card col-span-2" style={{ background: "#121218", padding: "20px", border: "1px solid #333", borderRadius: "8px" }}>
               <h3><i className="fa-solid fa-plus"></i> Yeni Görev Planla</h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginBottom: "15px" }}>
