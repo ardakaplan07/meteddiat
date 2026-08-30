@@ -21,32 +21,27 @@ const TYPING_TEXT_FULL = "Geleceğin donanımını ve algoritmasını üretiyoru
 export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
-  // UI Kontrolleri
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register" | "forgot">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   
-  // Hologram ve Animasyonlar
   const [typedText, setTypedText] = useState("");
   const [glitchShadow, setGlitchShadow] = useState("none");
-  const [scrollProgress, setScrollProgress] = useState(0); // HOLOGRAM İÇİN SCROLL TAKİBİ
+  const [scrollProgress, setScrollProgress] = useState(0); 
 
-  // Auth Formları
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass] = useState("");
   
-  // Şifremi Unuttum Formu
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPass, setResetNewPass] = useState("");
 
   const [authMsg, setAuthMsg] = useState({ text: "", type: "" });
 
-  // Veritabanı State'leri
   const [currentUser, setCurrentUser] = useState("");
   const [allUsersDB, setAllUsersDB] = useState<any[]>([]);
   const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
@@ -54,7 +49,6 @@ export default function Home() {
   const [systemStatusDB, setSystemStatusDB] = useState<any[]>([]);
   const [logsDB, setLogsDB] = useState<any[]>([]);
 
-  // Dashboard Formları
   const [taskName, setTaskName] = useState("");
   const [taskAssignee, setTaskAssignee] = useState("");
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
@@ -78,7 +72,7 @@ export default function Home() {
 
   // --- EFEKTLER (useEffect) ---
 
-  // Scroll Takibi (Sayfanın en altına indikçe 0'dan 1'e doğru ilerler)
+  // Lazer bağlantı çizgileri için Scroll takibi
   useEffect(() => {
     const handleScroll = () => {
       const maxScroll = document.body.scrollHeight - window.innerHeight;
@@ -89,7 +83,7 @@ export default function Home() {
     
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("resize", handleScroll);
-    handleScroll(); // Başlangıçta bir kez çalıştır
+    handleScroll(); 
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -399,96 +393,7 @@ export default function Home() {
     <>
       <div className="code-bg-overlay"></div>
 
-      {/* ============================================================================== */}
-      {/* GERÇEKÇİ RESİM DİLİMLEME (REALISTIC IMAGE CLIP-PATH ASSEMBLY) EFEKTİ */}
-      {/* ============================================================================== */}
-      <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
-        
-        {/* SOL MODEL: HROV (assets/hrov-real.png) */}
-        <div style={{ position: "absolute", left: "2%", top: "50%", transform: "translateY(-50%)", width: "400px", height: "600px", opacity: 0.1 + (0.9 * scrollProgress), transition: "opacity 0.2s" }}>
-          
-          {/* Parça 1: Üst (Nose) */}
-          <img 
-            src="/assets/hrov-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
-              clipPath: "inset(0 0 66.6% 0)", 
-              transform: `translateY(${-400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-
-          {/* Parça 2: Orta (Body) */}
-          <img 
-            src="/assets/hrov-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
-              clipPath: "inset(33.3% 0 33.3% 0)", 
-              transform: `translateX(${-400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-
-          {/* Parça 3: Alt (Thrusters) */}
-          <img 
-            src="/assets/hrov-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.5))",
-              clipPath: "inset(66.6% 0 0 0)", 
-              transform: `translateY(${400 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-        </div>
-
-        {/* SAĞ MODEL: SATELLITE (assets/satellite-real.png) */}
-        <div style={{ position: "absolute", right: "2%", top: "50%", transform: "translateY(-50%)", width: "400px", height: "600px", opacity: 0.1 + (0.9 * scrollProgress), transition: "opacity 0.2s" }}>
-          
-          {/* Parça 1: Üst Panel */}
-          <img 
-            src="/assets/satellite-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
-              clipPath: "inset(0 0 66.6% 0)", 
-              transform: `translate(${300 * (1 - scrollProgress)}px, ${-300 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-
-          {/* Parça 2: Merkez Çekirdek */}
-          <img 
-            src="/assets/satellite-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
-              clipPath: "inset(33.3% 0 33.3% 0)", 
-              transform: `scale(${1 + 2 * (1 - scrollProgress)})`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-
-          {/* Parça 3: Alt Panel */}
-          <img 
-            src="/assets/satellite-real.png" 
-            alt="" 
-            style={{ 
-              position: "absolute", width: "100%", height: "100%", objectFit: "contain", 
-              filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.5))",
-              clipPath: "inset(66.6% 0 0 0)", 
-              transform: `translate(${300 * (1 - scrollProgress)}px, ${300 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" 
-            }} 
-          />
-        </div>
-
-      </div>
-      {/* ============================================================================== */}
-
-
-      {/* --- ANA SAYFA (zIndex ile modellerin üstünde tutuldu) --- */}
+      {/* --- ANA SAYFA --- */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "relative", zIndex: 1 }}>
         
         <nav className="navbar">
@@ -660,11 +565,81 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
-          <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
-          <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+        {/* ============================================================================== */}
+        {/* YENİ BAŞVURU FORMU & BLUEPRINT BAĞLANTI (Lazer Çizgileri) SİSTEMİ */}
+        {/* ============================================================================== */}
+        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", minHeight: "850px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
+          
+          {/* Arkaplan Işık Efektleri */}
+          <div style={{ position: "absolute", top: "50%", left: "15%", transform: "translate(-50%, -50%)", width: "500px", height: "500px", background: "rgba(54, 209, 220, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "50%", right: "15%", transform: "translate(50%, -50%)", width: "500px", height: "500px", background: "rgba(255, 94, 98, 0.1)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
           
+          {/* SOL TARAF: M.E.T.E. Blueprint -> Scroll Çizgisi -> HROV Render */}
+          <div className="hide-on-mobile" style={{ position: "absolute", left: "2%", top: "10%", bottom: "10%", width: "350px", pointerEvents: "none", zIndex: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+            
+            {/* 1. Üst Kısım: SVG Tel Kafes (Blueprint) */}
+            <div style={{ width: "120px", opacity: 0.5, filter: "drop-shadow(0 0 10px rgba(54, 209, 220, 0.5))" }}>
+              <svg viewBox="0 0 300 400" stroke="#36d1dc" fill="none" strokeWidth="4">
+                <rect x="100" y="100" width="100" height="200" rx="15" />
+                <circle cx="150" cy="200" r="30" strokeDasharray="5 5" />
+                <path d="M 100 100 Q 150 40 200 100" />
+                <rect x="60" y="150" width="30" height="100" rx="5" />
+                <rect x="210" y="150" width="30" height="100" rx="5" />
+              </svg>
+            </div>
+
+            {/* 2. Orta Kısım: Scroll'a Duyarlı Lazer Çizgisi */}
+            <div style={{ flex: 1, width: "100%", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: `${scrollProgress * 100}%`, transition: "height 0.1s ease-out" }}>
+                <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", minHeight: "200px" }} preserveAspectRatio="none">
+                   <path d="M 175 0 L 175 40% L 260 60% L 260 100%" stroke="#36d1dc" strokeWidth="2" strokeDasharray="6 6" fill="none" opacity="0.6" />
+                   <circle cx="260" cy="100%" r="5" fill="#36d1dc" style={{ filter: "drop-shadow(0 0 5px #36d1dc)" }} />
+                </svg>
+              </div>
+            </div>
+
+            {/* 3. Alt Kısım: Gerçekçi HROV PNG Görseli */}
+            <img 
+              src="/assets/hrov-real.png" 
+              alt="HROV Render" 
+              style={{ width: "90%", objectFit: "contain", filter: "drop-shadow(0 0 25px rgba(54, 209, 220, 0.4))", opacity: scrollProgress > 0.5 ? 1 : 0.2, transition: "opacity 0.5s ease-out", transform: "translateX(20px)" }} 
+            />
+          </div>
+
+          {/* SAĞ TARAF: DDİAT Blueprint -> Scroll Çizgisi -> SATELLITE Render */}
+          <div className="hide-on-mobile" style={{ position: "absolute", right: "2%", top: "10%", bottom: "10%", width: "350px", pointerEvents: "none", zIndex: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between" }}>
+            
+            {/* 1. Üst Kısım: SVG Tel Kafes (Blueprint) */}
+            <div style={{ width: "120px", opacity: 0.5, filter: "drop-shadow(0 0 10px rgba(255, 94, 98, 0.5))" }}>
+              <svg viewBox="0 0 300 400" stroke="#ff5e62" fill="none" strokeWidth="4">
+                <polygon points="120,130 180,130 210,180 180,270 120,270 90,180" />
+                <circle cx="150" cy="200" r="25" />
+                <rect x="10" y="160" width="80" height="80" />
+                <rect x="210" y="160" width="80" height="80" />
+                <path d="M 90 110 Q 150 50 210 110" strokeDasharray="5 5" />
+              </svg>
+            </div>
+
+            {/* 2. Orta Kısım: Scroll'a Duyarlı Lazer Çizgisi */}
+            <div style={{ flex: 1, width: "100%", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: `${scrollProgress * 100}%`, transition: "height 0.1s ease-out" }}>
+                <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", minHeight: "200px" }} preserveAspectRatio="none">
+                   <path d="M 175 0 L 175 40% L 90 60% L 90 100%" stroke="#ff5e62" strokeWidth="2" strokeDasharray="6 6" fill="none" opacity="0.6" />
+                   <circle cx="90" cy="100%" r="5" fill="#ff5e62" style={{ filter: "drop-shadow(0 0 5px #ff5e62)" }} />
+                </svg>
+              </div>
+            </div>
+
+            {/* 3. Alt Kısım: Gerçekçi SATELLITE PNG Görseli */}
+            <img 
+              src="/assets/satellite-real.png" 
+              alt="Satellite Render" 
+              style={{ width: "90%", objectFit: "contain", filter: "drop-shadow(0 0 25px rgba(255, 94, 98, 0.4))", opacity: scrollProgress > 0.5 ? 1 : 0.2, transition: "opacity 0.5s ease-out", transform: "translateX(-20px)" }} 
+            />
+          </div>
+
+          {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU */}
           <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
@@ -730,6 +705,7 @@ export default function Home() {
         </section>
       </div>
 
+      {/* --- ÜYE PANELİ MODALI --- */}
       {isLoginModalOpen && (
         <div className="modal-overlay active">
           <div className="modal-box">
@@ -809,6 +785,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* --- GİZLİ ADMİN PANELİ --- */}
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
@@ -871,6 +848,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* --- ÜYE KONTROL MERKEZİ (DASHBOARD) --- */}
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
