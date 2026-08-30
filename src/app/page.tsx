@@ -78,15 +78,23 @@ export default function Home() {
 
   // --- EFEKTLER (useEffect) ---
 
-  // Scroll Takibi (Hologram Parçalarının Birleşmesi İçin)
+  // Scroll Takibi (Sayfanın en altına indikçe 0'dan 1'e doğru ilerler)
   useEffect(() => {
     const handleScroll = () => {
-      // 0 ile 1 arasında bir değer (600px kaydırmada parçalar tamamen birleşir)
-      const progress = Math.min(window.scrollY / 600, 1);
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const currentScroll = window.scrollY;
+      const progress = maxScroll > 0 ? Math.min(currentScroll / maxScroll, 1) : 0;
       setScrollProgress(progress);
     };
+    
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    handleScroll(); // Başlangıçta bir kez çalıştır
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -382,57 +390,90 @@ export default function Home() {
       <div className="code-bg-overlay"></div>
 
       {/* ============================================================================== */}
-      {/* 3D HOLOGRAM ANİMASYON SİSTEMİ (SCROLL İLE BİRLEŞEN PARÇALAR) */}
+      {/* PROFESYONEL SVG CAD MONTAJI (Scroll ile Birleşen Otonom Parçalar) */}
       {/* ============================================================================== */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
         
-        {/* SOL HOLOGRAM: M.E.T.E. (Otonom Araç Tel Kafesi - Turkuaz) */}
-        <div style={{ position: "absolute", left: "10%", top: "45%", width: "100px", height: "100px", transformStyle: "preserve-3d", perspective: "1000px", opacity: 0.2 + (0.8 * scrollProgress) }}>
-          
-          {/* Merkez Modül */}
-          <div style={{ position: "absolute", width: "80px", height: "140px", border: "2px solid rgba(54, 209, 220, 0.8)", boxShadow: "0 0 15px rgba(54, 209, 220, 0.5), inset 0 0 10px rgba(54, 209, 220, 0.3)", borderRadius: "8px", background: "rgba(54, 209, 220, 0.05)",
-            transform: `translate3d(${ -400 * (1 - scrollProgress) }px, ${ -300 * (1 - scrollProgress) }px, ${ 200 * (1 - scrollProgress) }px) rotateX(${ 90 * (1 - scrollProgress) }deg) rotateY(${ 180 * (1 - scrollProgress) }deg)`
-          }}></div>
-          
-          {/* Sol Motor/Güneş Paneli */}
-          <div style={{ position: "absolute", width: "40px", height: "100px", border: "1px solid rgba(54, 209, 220, 0.6)", boxShadow: "0 0 10px rgba(54, 209, 220, 0.4)", background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(54, 209, 220, 0.2) 2px, rgba(54, 209, 220, 0.2) 4px)",
-            transform: `translate3d(${ -60 - 500 * (1 - scrollProgress) }px, ${ 20 + 400 * (1 - scrollProgress) }px, ${ -300 * (1 - scrollProgress) }px) rotateZ(${ -60 * (1 - scrollProgress) }deg) rotateY(${ 45 * scrollProgress }deg)`
-          }}></div>
-          
-          {/* Sağ Motor/Güneş Paneli */}
-          <div style={{ position: "absolute", width: "40px", height: "100px", border: "1px solid rgba(54, 209, 220, 0.6)", boxShadow: "0 0 10px rgba(54, 209, 220, 0.4)", background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(54, 209, 220, 0.2) 2px, rgba(54, 209, 220, 0.2) 4px)",
-            transform: `translate3d(${ 100 + 400 * (1 - scrollProgress) }px, ${ 20 - 500 * (1 - scrollProgress) }px, ${ 400 * (1 - scrollProgress) }px) rotateZ(${ 90 * (1 - scrollProgress) }deg) rotateY(${ -45 * scrollProgress }deg)`
-          }}></div>
+        {/* SOL: M.E.T.E. HROV (Su Altı Aracı) CAD Tel Kafes */}
+        <div style={{ position: "absolute", left: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
+          <svg viewBox="0 0 300 400" stroke="#36d1dc" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(54,209,220,0.6))" }}>
+            
+            {/* Gövde Şasisi (Yukarıdan aşağı iner) */}
+            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <rect x="100" y="100" width="100" height="200" rx="15" />
+              <line x1="100" y1="140" x2="200" y2="140" strokeDasharray="4 4" />
+              <line x1="100" y1="260" x2="200" y2="260" strokeDasharray="4 4" />
+              <circle cx="150" cy="200" r="30" strokeDasharray="2 4" />
+            </g>
+
+            {/* Kamera / Aydınlatma Modülü (Aşağıdan yukarı çıkar) */}
+            <g style={{ transform: `translate(0, ${150 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <path d="M 100 100 Q 150 40 200 100" />
+              <circle cx="150" cy="75" r="12" fill="rgba(54,209,220,0.2)" />
+              <line x1="150" y1="63" x2="150" y2="45" />
+            </g>
+
+            {/* Sol İtici Motor (Soldan sağa kayar ve döner) */}
+            <g style={{ transform: `translate(${-150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${-90 * (1 - scrollProgress)}deg)`, transformOrigin: "70px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="60" y="150" width="30" height="100" rx="5" />
+              <polygon points="60,250 90,250 95,280 55,280" />
+              <line x1="75" y1="250" x2="75" y2="280" />
+            </g>
+
+            {/* Sağ İtici Motor (Sağdan sola kayar ve döner) */}
+            <g style={{ transform: `translate(${150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${90 * (1 - scrollProgress)}deg)`, transformOrigin: "230px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="210" y="150" width="30" height="100" rx="5" />
+              <polygon points="210,250 240,250 245,280 205,280" />
+              <line x1="225" y1="250" x2="225" y2="280" />
+            </g>
+          </svg>
         </div>
 
-        {/* SAĞ HOLOGRAM: DDİAT (Yapay Zeka Çekirdeği ve Yörüngeler - Kırmızı) */}
-        <div style={{ position: "absolute", right: "20%", top: "45%", width: "100px", height: "100px", transformStyle: "preserve-3d", perspective: "1000px", opacity: 0.2 + (0.8 * scrollProgress) }}>
-          
-          {/* AI Core (Merkez Çekirdek) */}
-          <div style={{ position: "absolute", width: "40px", height: "40px", borderRadius: "50%", background: "rgba(255, 94, 98, 0.9)", boxShadow: "0 0 40px rgba(255, 94, 98, 1)",
-            transform: `translate3d(${ 300 * (1 - scrollProgress) }px, ${ 200 * (1 - scrollProgress) }px, 0px) scale(${1 + 3 * (1 - scrollProgress)})`
-          }}></div>
-          
-          {/* Yörünge 1 (Veri Halkası) */}
-          <div style={{ position: "absolute", width: "140px", height: "140px", border: "2px dashed rgba(255, 94, 98, 0.6)", borderRadius: "50%", top: "-50px", left: "-50px",
-            transform: `translate3d(${ -300 * (1 - scrollProgress) }px, ${ -400 * (1 - scrollProgress) }px, ${ 300 * (1 - scrollProgress) }px) rotateX(${70 + 180 * (1 - scrollProgress)}deg) rotateY(${20 * (1 - scrollProgress)}deg)`
-          }}></div>
-          
-          {/* Yörünge 2 (Dış Katman) */}
-          <div style={{ position: "absolute", width: "200px", height: "200px", border: "1px solid rgba(255, 94, 98, 0.4)", borderRadius: "50%", top: "-80px", left: "-80px",
-            transform: `translate3d(${ 500 * (1 - scrollProgress) }px, ${ -200 * (1 - scrollProgress) }px, ${ -400 * (1 - scrollProgress) }px) rotateY(${70 + 360 * (1 - scrollProgress)}deg) rotateZ(${45 * (1 - scrollProgress)}deg)`
-          }}></div>
-          
-          {/* Geometrik Node (Matris Küp) */}
-          <div style={{ position: "absolute", width: "90px", height: "90px", border: "1px solid rgba(255, 94, 98, 0.3)", top: "-25px", left: "-25px",
-            transform: `translate3d(${ -400 * (1 - scrollProgress) }px, ${ 500 * (1 - scrollProgress) }px, ${ 500 * (1 - scrollProgress) }px) rotateX(${45 + 180 * (1 - scrollProgress)}deg) rotateZ(${45 + 180 * (1 - scrollProgress)}deg)`
-          }}></div>
+        {/* SAĞ: MODEL UYDU CAD Tel Kafes */}
+        <div style={{ position: "absolute", right: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
+          <svg viewBox="0 0 300 400" stroke="#ff5e62" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(255,94,98,0.6))" }}>
+            
+            {/* Uydu Çekirdeği (Merkezde büyür) */}
+            <g style={{ transform: `scale(${1 + 1.5 * (1 - scrollProgress)})`, transformOrigin: "150px 200px", transition: "transform 0.1s ease-out" }}>
+              <polygon points="120,130 180,130 210,180 180,270 120,270 90,180" />
+              <circle cx="150" cy="200" r="25" fill="rgba(255,94,98,0.1)" />
+              <circle cx="150" cy="200" r="40" strokeDasharray="5 5" />
+            </g>
+
+            {/* İletişim Çanağı / Anten (Yukarıdan iner) */}
+            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <path d="M 90 110 Q 150 50 210 110" strokeDasharray="3 3" />
+              <line x1="150" y1="80" x2="150" y2="130" />
+              <circle cx="150" cy="80" r="5" />
+              <path d="M 120 70 Q 150 20 180 70" opacity="0.5" />
+            </g>
+
+            {/* Sol Güneş Paneli (Aşağıdan çapraz gelir) */}
+            <g style={{ transform: `translate(${-200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${-45 * (1 - scrollProgress)}deg)`, transformOrigin: "50px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="10" y="160" width="80" height="80" />
+              <line x1="36" y1="160" x2="36" y2="240" />
+              <line x1="62" y1="160" x2="62" y2="240" />
+              <line x1="10" y1="186" x2="90" y2="186" />
+              <line x1="10" y1="212" x2="90" y2="212" />
+              <line x1="90" y1="200" x2="120" y2="200" strokeWidth="4" />
+            </g>
+
+            {/* Sağ Güneş Paneli (Aşağıdan çapraz gelir) */}
+            <g style={{ transform: `translate(${200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${45 * (1 - scrollProgress)}deg)`, transformOrigin: "250px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="210" y="160" width="80" height="80" />
+              <line x1="236" y1="160" x2="236" y2="240" />
+              <line x1="262" y1="160" x2="262" y2="240" />
+              <line x1="210" y1="186" x2="290" y2="186" />
+              <line x1="210" y1="212" x2="290" y2="212" />
+              <line x1="180" y1="200" x2="210" y2="200" strokeWidth="4" />
+            </g>
+          </svg>
         </div>
+
       </div>
       {/* ============================================================================== */}
 
 
-      {/* --- ANA SAYFA --- */}
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "relative", zIndex: 1 }}>
         
         <nav className="navbar">
@@ -566,9 +607,18 @@ export default function Home() {
                 </ul>
               </div>
               <form action="https://formspree.io/f/mppabbpb" method="POST" className="cyber-form contact-form">
-                <div className="input-group"><input type="text" name="Ad_Soyad" required placeholder=" " /><label>Adınız Soyadınız</label></div>
-                <div className="input-group"><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta Adresiniz</label></div>
-                <div className="input-group"><textarea name="Mesaj" required rows={4} placeholder=" "></textarea><label>Mesajınız</label></div>
+                <div className="input-group">
+                  <input type="text" name="Ad_Soyad" required placeholder=" " />
+                  <label>Adınız Soyadınız</label>
+                </div>
+                <div className="input-group">
+                  <input type="email" name="E_Posta" required placeholder=" " />
+                  <label>E-Posta Adresiniz</label>
+                </div>
+                <div className="input-group">
+                  <textarea name="Mesaj" required rows={4} placeholder=" "></textarea>
+                  <label>Mesajınız</label>
+                </div>
                 <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
                 <button type="submit" className="btn-glow w-100">MESAJI İLET //{">"}</button>
               </form>
@@ -577,36 +627,67 @@ export default function Home() {
         </section>
 
         <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
+          
           <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
           <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
+          
           <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
+            
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
               <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 20px rgba(54, 209, 220, 0.8)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
               <p style={{ color: "#a9a9bc", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
             </div>
+            
             <form action="https://formspree.io/f/mnpawwdq" method="POST" style={{ position: "relative" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Ad Soyad</label></div>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>E-Posta Adresi</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Ad Soyad</label>
+                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>E-Posta Adresi</label>
+                </div>
               </div>
+
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Telefon Numarası</label></div>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} /><label style={{ color: "#888" }}>Üniversite & Bölüm</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Telefon Numarası</label>
+                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Üniversite & Bölüm</label>
+                </div>
               </div>
+
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
                   <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
-                    <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option><option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option><option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option><option value="2. Sınıf" style={{ background: "#111" }}>2. Sınıf</option><option value="3. Sınıf" style={{ background: "#111" }}>3. Sınıf</option><option value="4. Sınıf" style={{ background: "#111" }}>4. Sınıf</option><option value="Yüksek Lisans / Mezun" style={{ background: "#111" }}>Yüksek Lisans / Mezun</option>
+                    <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option>
+                    <option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option>
+                    <option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option>
+                    <option value="2. Sınıf" style={{ background: "#111" }}>2. Sınıf</option>
+                    <option value="3. Sınıf" style={{ background: "#111" }}>3. Sınıf</option>
+                    <option value="4. Sınıf" style={{ background: "#111" }}>4. Sınıf</option>
+                    <option value="Yüksek Lisans / Mezun" style={{ background: "#111" }}>Yüksek Lisans / Mezun</option>
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
                   <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
-                    <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option><option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option><option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
+                    <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option>
+                    <option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option>
+                    <option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
                   </select>
                 </div>
               </div>
-              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea><label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label></div>
+
+              <div className="input-group" style={{ marginTop: "25px" }}>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea>
+                <label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label>
+              </div>
+              
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
               <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
             </form>
@@ -618,7 +699,11 @@ export default function Home() {
         <div className="modal-overlay active">
           <div className="modal-box">
             <span className="close-modal" onClick={() => setIsLoginModalOpen(false)}>&times;</span>
-            <div className="modal-header"><i className="fa-solid fa-shield-halved fa-2x"></i><h2>Gizli Ağ Erişimi</h2><p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p></div>
+            <div className="modal-header">
+              <i className="fa-solid fa-shield-halved fa-2x"></i>
+              <h2>Gizli Ağ Erişimi</h2>
+              <p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p>
+            </div>
             
             {authTab !== "forgot" && (
               <div className="auth-tabs">
@@ -629,28 +714,58 @@ export default function Home() {
 
             {authTab === 'login' ? (
               <form className="auth-form active" onSubmit={handleLogin}>
-                <div className="input-group"><input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} /><label>Kayıtlı E-Posta Adresi</label></div>
-                <div className="input-group" style={{ marginBottom: "10px" }}><input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} /><label>Parola</label></div>
-                <div style={{ textAlign: "right", marginBottom: "20px" }}><span style={{ fontSize: "0.8rem", color: "var(--primary-glow)", cursor: "pointer" }} onClick={() => {setAuthTab('forgot'); setAuthMsg({text:"", type:""})}}>Şifremi Unuttum?</span></div>
+                <div className="input-group">
+                  <input type="email" required placeholder=" " value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
+                  <label>Kayıtlı E-Posta Adresi</label>
+                </div>
+                <div className="input-group" style={{ marginBottom: "10px" }}>
+                  <input type="password" required placeholder=" " value={loginPass} onChange={(e) => setLoginPass(e.target.value)} />
+                  <label>Parola</label>
+                </div>
+                
+                <div style={{ textAlign: "right", marginBottom: "20px" }}>
+                  <span style={{ fontSize: "0.8rem", color: "var(--primary-glow)", cursor: "pointer" }} onClick={() => {setAuthTab('forgot'); setAuthMsg({text:"", type:""})}}>Şifremi Unuttum?</span>
+                </div>
+
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
-                <div className="admin-note"><i className="fa-solid fa-lock"></i><span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span></div>
+                <div className="admin-note">
+                  <i className="fa-solid fa-lock"></i>
+                  <span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span>
+                </div>
               </form>
             ) : authTab === 'register' ? (
               <form className="auth-form active" onSubmit={handleRegister}>
-                <div className="input-group"><input type="text" required placeholder=" " value={regName} onChange={(e) => setRegName(e.target.value)} /><label>Adınız Soyadınız</label></div>
-                <div className="input-group"><input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} /><label>E-Posta Adresi (Geçerli Format)</label></div>
-                <div className="input-group"><input type="password" required placeholder=" " value={regPass} onChange={(e) => setRegPass(e.target.value)} /><label>Bir Parola Belirleyin</label></div>
+                <div className="input-group">
+                  <input type="text" required placeholder=" " value={regName} onChange={(e) => setRegName(e.target.value)} />
+                  <label>Adınız Soyadınız</label>
+                </div>
+                <div className="input-group">
+                  <input type="email" required placeholder=" " value={regEmail} onChange={(e) => setRegEmail(e.target.value)} />
+                  <label>E-Posta Adresi (Geçerli Format)</label>
+                </div>
+                <div className="input-group">
+                  <input type="password" required placeholder=" " value={regPass} onChange={(e) => setRegPass(e.target.value)} />
+                  <label>Bir Parola Belirleyin</label>
+                </div>
                 <button type="submit" className="btn-glow w-100">ONAY İÇİN BAŞVUR</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
               </form>
             ) : (
               <form className="auth-form active" onSubmit={handleForgotPassword}>
                 <h3 style={{ color: "#fff", marginBottom: "20px", textAlign: "center", fontSize: "1rem" }}>Şifre Yenileme</h3>
-                <div className="input-group"><input type="email" required placeholder=" " value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} /><label>Sistemdeki E-Posta Adresiniz</label></div>
-                <div className="input-group"><input type="password" required placeholder=" " value={resetNewPass} onChange={(e) => setResetNewPass(e.target.value)} /><label>Yeni Parola Belirleyin</label></div>
+                <div className="input-group">
+                  <input type="email" required placeholder=" " value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
+                  <label>Sistemdeki E-Posta Adresiniz</label>
+                </div>
+                <div className="input-group">
+                  <input type="password" required placeholder=" " value={resetNewPass} onChange={(e) => setResetNewPass(e.target.value)} />
+                  <label>Yeni Parola Belirleyin</label>
+                </div>
                 <button type="submit" className="btn-glow w-100">ŞİFREMİ GÜNCELLE</button>
-                <div style={{ textAlign: "center", marginTop: "15px" }}><span style={{ fontSize: "0.85rem", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Ekranına Dön</span></div>
+                <div style={{ textAlign: "center", marginTop: "15px" }}>
+                  <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", cursor: "pointer" }} onClick={() => {setAuthTab('login'); setAuthMsg({text:"", type:""})}}>Giriş Ekranına Dön</span>
+                </div>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
               </form>
             )}
@@ -661,7 +776,13 @@ export default function Home() {
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
-            <div className="admin-header"><div><h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2><p>Ağ Yöneticisi: {currentUser}</p></div><button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button></div>
+            <div className="admin-header">
+              <div>
+                <h2><i className="fa-solid fa-terminal"></i> ROOT // ADMIN PANEL</h2>
+                <p>Ağ Yöneticisi: {currentUser}</p>
+              </div>
+              <button className="btn-outline" onClick={handleLogout}>Sistemden Çık</button>
+            </div>
             <div className="admin-content">
               <h3>Bekleyen Başvurular</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
@@ -669,7 +790,11 @@ export default function Home() {
                   <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'pending').map((user, idx) => (
-                      <tr key={idx}><td>{user.name}</td><td>{user.email}</td><td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td></tr>
+                      <tr key={idx}>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td>
+                      </tr>
                     ))}
                     {allUsersDB.filter(u => u.status === 'pending').length === 0 && (<tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>)}
                   </tbody>
@@ -681,7 +806,11 @@ export default function Home() {
                   <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'approved').map((user, idx) => (
-                      <tr key={idx}><td>{user.name}</td><td>{user.email}</td><td><button className="btn-action btn-revoke" onClick={() => changeUserStatus(user.email, 'pending')}>Yetkiyi İptal Et</button></td></tr>
+                      <tr key={idx}>
+                        <td>{user.name}</td>
+                        <td>{user.email}</td>
+                        <td><button className="btn-action btn-revoke" onClick={() => changeUserStatus(user.email, 'pending')}>Yetkiyi İptal Et</button></td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
@@ -710,7 +839,10 @@ export default function Home() {
               <div style={{ marginTop: "20px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 {systemStatusDB.map((sys, idx) => (
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                    <div><span style={{ color: '#fff' }}>{sys.name}</span><div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div></div>
+                    <div>
+                      <span style={{ color: '#fff' }}>{sys.name}</span>
+                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
+                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#ff5e62', color: '#ff5e62' }} onClick={() => deleteSystemStatus(sys.id)}>Sil</button>
@@ -724,13 +856,15 @@ export default function Home() {
               <h3><i className="fa-solid fa-users"></i> Aktif İstasyonlar</h3>
               <div style={{ marginTop: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "5px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222' }}>
-                  <span>Admin</span><span className="text-green">[{currentUser === "Admin" ? "Şu An Aktif" : "Yetkili"}]</span>
+                  <span>Admin</span>
+                  <span className="text-green">[{currentUser === "Admin" ? "Şu An Aktif" : "Yetkili"}]</span>
                 </div>
                 {approvedUsers.map((user, idx) => {
                   const isOnline = user.name === currentUser || user.is_online;
                   return (
                     <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #222', color: '#888' }}>
-                      <span>{user.name}</span><span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Uzakta/Çevrimdışı'}]</span>
+                      <span>{user.name}</span>
+                      <span style={{ color: isOnline ? '#10b981' : '#666' }}>[{isOnline ? 'Çevrimiçi' : 'Uzakta/Çevrimdışı'}]</span>
                     </div>
                   );
                 })}
@@ -772,7 +906,16 @@ export default function Home() {
               <h3 style={{ marginTop: '30px' }}><i className="fa-solid fa-list-check"></i> Aktif Görevler</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
-                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Öncelik</th><th>Bitiş (Deadline)</th><th>Durum</th><th>İşlem</th></tr></thead>
+                  <thead>
+                    <tr style={{ color: "#888" }}>
+                      <th>Görev</th>
+                      <th>Sorumlu</th>
+                      <th>Öncelik</th>
+                      <th>Bitiş (Deadline)</th>
+                      <th>Durum</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {tasksDB.filter(t => !t.is_completed).map(task => (
                       <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
@@ -792,7 +935,13 @@ export default function Home() {
               <h3 style={{ marginTop: '30px', color: '#10b981' }}><i className="fa-solid fa-check-double"></i> Tamamlananlar</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table" style={{ width: "100%", textAlign: "left" }}>
-                  <thead><tr style={{ color: "#888" }}><th>Görev</th><th>Sorumlu</th><th>Tarih</th></tr></thead>
+                  <thead>
+                    <tr style={{ color: "#888" }}>
+                      <th>Görev</th>
+                      <th>Sorumlu</th>
+                      <th>Tarih</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {tasksDB.filter(t => t.is_completed).map(task => (
                       <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
