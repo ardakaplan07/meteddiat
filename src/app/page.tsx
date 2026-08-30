@@ -494,16 +494,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Glassmorphism & Dinamik Arkaplan) */}
-        <section id="basvuru" className="apply-section" style={{ display: "flex", justifyContent: "center", padding: "100px 20px", background: "transparent", position: "relative" }}>
+        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Kesin Çalışan Glassmorphism) */}
+        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "100px 20px", overflow: "hidden", borderTop: "1px solid var(--border-color)", background: "#050505" }}>
           
-          {/* Arkadaki Dinamik Neon Parlama */}
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: "800px", height: "100%", maxHeight: "600px", background: "radial-gradient(circle, rgba(54, 209, 220, 0.05) 0%, rgba(255, 94, 98, 0.02) 50%, transparent 80%)", filter: "blur(60px)", zIndex: 0, pointerEvents: "none" }}></div>
+          {/* Siber Grid (Izgara) ve Neon Parlama Efektleri */}
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(54, 209, 220, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(54, 209, 220, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
           
-          <div className="form-container" style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(10, 10, 15, 0.4)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(54, 209, 220, 0.15)", borderTop: "1px solid rgba(54, 209, 220, 0.4)", boxShadow: "0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: "800px", height: "100%", maxHeight: "600px", background: "radial-gradient(circle, rgba(54, 209, 220, 0.15) 0%, rgba(255, 94, 98, 0.05) 50%, transparent 70%)", filter: "blur(60px)", zIndex: 0, pointerEvents: "none" }}></div>
+          
+          <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(15, 15, 20, 0.5)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(54, 209, 220, 0.2)", borderTop: "1px solid rgba(54, 209, 220, 0.5)", boxShadow: "0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div className="form-header" style={{ marginBottom: "40px", textAlign: "center" }}>
-              <h2 style={{ color: "var(--primary-glow)", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 10px 0" }}>Sisteme Katıl</h2>
+              <h2 style={{ color: "var(--primary-glow)", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 10px 0", textShadow: "0 0 15px rgba(54, 209, 220, 0.5)" }}>Sisteme Katıl</h2>
               <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
             </div>
             
@@ -532,7 +534,7 @@ export default function Home() {
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Sinif" required defaultValue="">
+                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}>
                     <option value="" disabled>Sınıfınızı Seçin</option>
                     <option value="Hazırlık">Hazırlık</option>
                     <option value="1. Sınıf">1. Sınıf</option>
@@ -543,7 +545,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Tercih_Edilen_Ekip" required defaultValue="">
+                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}>
                     <option value="" disabled>Hedef Ekip Seçin</option>
                     <option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım)</option>
                     <option value="DDİAT">DDİAT (Yapay Zeka)</option>
@@ -552,12 +554,12 @@ export default function Home() {
               </div>
 
               <div className="input-group" style={{ marginTop: "25px" }}>
-                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" "></textarea>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}></textarea>
                 <label>Sisteme Katılım Amacınız & Becerileriniz</label>
               </div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
-              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "1.5px" }}>VERİLERİ İŞLE VE BAŞVUR //{">"}</button>
+              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "1.5px", background: "rgba(54, 209, 220, 0.1)", backdropFilter: "blur(5px)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
             </form>
           </div>
         </section>
