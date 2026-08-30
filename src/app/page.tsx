@@ -546,19 +546,19 @@ export default function Home() {
 
 
         {/* ============================================================================== */}
-        {/* YENİ SİSTEM: %100 STATİK, GÖRSELDEKİ GİBİ KONUMLANDIRILMIŞ BLUEPRINT VE RENDER */}
+        {/* YENİ SİSTEM: %100 STATİK, KÖŞELERDE BLUEPRINT VE MERKEZE BAĞLANAN ÇİZGİLER */}
         {/* ============================================================================== */}
-        <section id="basvuru" style={{ position: "relative", minHeight: "1100px", padding: "120px 0 350px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
+        <section id="basvuru" style={{ position: "relative", minHeight: "1200px", padding: "120px 0 400px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
           
           {/* Arkaplan Işık Efektleri */}
-          <div style={{ position: "absolute", top: "35%", left: "15%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
-          <div style={{ position: "absolute", top: "35%", right: "15%", transform: "translate(50%, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "35%", left: "10%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "35%", right: "10%", transform: "translate(50%, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
 
           {/* --- BİREBİR İSTENEN STATİK ARKA PLAN ÇİZİMLERİ VE ÇİZGİLER (Z-INDEX 0) --- */}
-          <div className="hide-on-mobile" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
             
-            {/* SOL Blueprint (M.E.T.E.) */}
-            <div style={{ position: "absolute", left: "5%", top: "150px", width: "160px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(54, 209, 220, 0.4))" }}>
+            {/* 1. MADDEDE İSTENEN: SOL Blueprint (M.E.T.E.) EN SOLDA */}
+            <div style={{ position: "absolute", left: "2%", top: "100px", width: "12%", maxWidth: "150px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(54, 209, 220, 0.4))" }}>
               <svg viewBox="0 0 200 300" stroke="#36d1dc" fill="none" strokeWidth="2">
                 <path d="M50,100 C50,60 150,60 150,100" />
                 <circle cx="100" cy="70" r="10" />
@@ -574,8 +574,8 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* SAĞ Blueprint (DDİAT) */}
-            <div style={{ position: "absolute", right: "5%", top: "150px", width: "180px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(255, 94, 98, 0.4))" }}>
+            {/* 1. MADDEDE İSTENEN: SAĞ Blueprint (DDİAT) EN SAĞDA */}
+            <div style={{ position: "absolute", right: "2%", top: "100px", width: "12%", maxWidth: "150px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(255, 94, 98, 0.4))" }}>
               <svg viewBox="0 0 240 300" stroke="#ff5e62" fill="none" strokeWidth="2">
                 <path d="M90,40 Q120,10 150,40" />
                 <circle cx="120" cy="50" r="5" />
@@ -598,33 +598,33 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* --- STATİK LAZER BAĞLANTI ÇİZGİLERİ --- */}
+            {/* 3. MADDEDE İSTENEN: ÇİZİMLERDEN ORTADAKİ GÖRSELE BAĞLANAN LAZER ÇİZGİLERİ */}
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}>
               
               {/* Sol Mavi Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
               <path 
-                d="M 12 35 L 12 60 L 30 60 L 30 70" 
+                d="M 8 18 L 8 60 L 35 80" 
                 stroke="#36d1dc" strokeWidth="0.2" fill="none" 
-                style={{ filter: "drop-shadow(0 0 2px #36d1dc)" }} 
+                style={{ filter: "drop-shadow(0 0 3px #36d1dc)" }} 
               />
-              <circle cx="12" cy="35" r="0.4" fill="#36d1dc" />
-              <circle cx="30" cy="70" r="0.4" fill="#36d1dc" />
-              <circle cx="12" cy="60" r="0.3" fill="#36d1dc" />
+              <circle cx="8" cy="18" r="0.4" fill="#36d1dc" />
+              <circle cx="8" cy="60" r="0.3" fill="#36d1dc" />
+              <circle cx="35" cy="80" r="0.5" fill="#36d1dc" style={{ filter: "drop-shadow(0 0 5px #36d1dc)" }} />
               
               {/* Sağ Kırmızı Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
               <path 
-                d="M 88 35 L 88 60 L 70 60 L 70 70" 
+                d="M 92 18 L 92 60 L 65 80" 
                 stroke="#ff5e62" strokeWidth="0.2" fill="none" 
-                style={{ filter: "drop-shadow(0 0 2px #ff5e62)" }} 
+                style={{ filter: "drop-shadow(0 0 3px #ff5e62)" }} 
               />
-              <circle cx="88" cy="35" r="0.4" fill="#ff5e62" />
-              <circle cx="70" cy="70" r="0.4" fill="#ff5e62" />
-              <circle cx="88" cy="60" r="0.3" fill="#ff5e62" />
+              <circle cx="92" cy="18" r="0.4" fill="#ff5e62" />
+              <circle cx="92" cy="60" r="0.3" fill="#ff5e62" />
+              <circle cx="65" cy="80" r="0.5" fill="#ff5e62" style={{ filter: "drop-shadow(0 0 5px #ff5e62)" }} />
             </svg>
           </div>
 
           {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU (Z-INDEX 10) */}
-          <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.9)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", borderRadius: "24px", padding: "50px 40px" }}>
+          <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.95)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 30px 60px rgba(0,0,0,0.9)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
               <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 15px rgba(255, 255, 255, 0.3)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
@@ -634,29 +634,29 @@ export default function Home() {
             <form action="https://formspree.io/f/mnpawwdq" method="POST" style={{ position: "relative" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }} />
                   <label style={{ color: "#888" }}>Ad Soyad</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }} />
                   <label style={{ color: "#888" }}>E-Posta Adresi</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }} />
                   <label style={{ color: "#888" }}>Telefon Numarası</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }} />
                   <label style={{ color: "#888" }}>Üniversite & Bölüm</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
+                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
                     <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option>
                     <option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option>
                     <option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option>
@@ -667,7 +667,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
+                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
                     <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option>
                     <option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option>
                     <option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
@@ -676,7 +676,7 @@ export default function Home() {
               </div>
 
               <div className="input-group" style={{ marginTop: "25px" }}>
-                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}></textarea>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}></textarea>
                 <label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label>
               </div>
               
@@ -688,7 +688,7 @@ export default function Home() {
           </div>
 
           {/* --- EN ALTTAKİ NİHAİ BİRLEŞİK RENDER GÖRSELİ (Z-INDEX 5) --- */}
-          <div className="hide-on-mobile" style={{ position: "absolute", bottom: "40px", left: "50%", transform: "translateX(-50%)", width: "85%", maxWidth: "1100px", zIndex: 5, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", bottom: "30px", left: "50%", transform: "translateX(-50%)", width: "70%", maxWidth: "1000px", zIndex: 5, pointerEvents: "none", display: "flex", justifyContent: "center" }}>
             <img 
               src="/assets/combined-render.png" 
               alt="Birleşik Sistem Renderı" 
