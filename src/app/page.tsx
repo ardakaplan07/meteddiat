@@ -21,26 +21,32 @@ const TYPING_TEXT_FULL = "Geleceğin donanımını ve algoritmasını üretiyoru
 export default function Home() {
   // --- STATE TANIMLAMALARI ---
   
+  // UI Kontrolleri
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register" | "forgot">("login");
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   
+  // Hologram ve Animasyonlar
   const [typedText, setTypedText] = useState("");
   const [glitchShadow, setGlitchShadow] = useState("none");
+  const [scrollProgress, setScrollProgress] = useState(0); // HOLOGRAM İÇİN SCROLL TAKİBİ
 
+  // Auth Formları
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPass, setRegPass] = useState("");
   
+  // Şifremi Unuttum Formu
   const [resetEmail, setResetEmail] = useState("");
   const [resetNewPass, setResetNewPass] = useState("");
 
   const [authMsg, setAuthMsg] = useState({ text: "", type: "" });
 
+  // Veritabanı State'leri
   const [currentUser, setCurrentUser] = useState("");
   const [allUsersDB, setAllUsersDB] = useState<any[]>([]);
   const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
@@ -48,6 +54,7 @@ export default function Home() {
   const [systemStatusDB, setSystemStatusDB] = useState<any[]>([]);
   const [logsDB, setLogsDB] = useState<any[]>([]);
 
+  // Dashboard Formları
   const [taskName, setTaskName] = useState("");
   const [taskAssignee, setTaskAssignee] = useState("");
   const [taskStatus, setTaskStatus] = useState("Devam Ediyor");
@@ -70,6 +77,25 @@ export default function Home() {
   };
 
   // --- EFEKTLER (useEffect) ---
+
+  // Scroll Takibi (Sayfanın en altına indikçe 0'dan 1'e doğru ilerler)
+  useEffect(() => {
+    const handleScroll = () => {
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const currentScroll = window.scrollY;
+      const progress = maxScroll > 0 ? Math.min(currentScroll / maxScroll, 1) : 0;
+      setScrollProgress(progress);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    handleScroll(); // Başlangıçta bir kez çalıştır
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     let i = 0;
@@ -200,9 +226,7 @@ export default function Home() {
       setAuthMsg({ text: "Bir hata oluştu veya bu e-posta zaten sistemde kayıtlı!", type: "error" });
     } else {
       setAuthMsg({ text: "Başvurunuz alındı. Admin onayladıktan sonra giriş yapabileceksiniz.", type: "success" });
-      setRegName(""); 
-      setRegEmail(""); 
-      setRegPass("");
+      setRegName(""); setRegEmail(""); setRegPass("");
     }
   };
 
@@ -241,14 +265,11 @@ export default function Home() {
     } else if (user.status === 'approved') {
       await supabase.from('users').update({ is_online: true }).eq('email', loginEmail);
       addLog(`[AUTH] ${user.name} istasyonu ağa bağlandı.`);
-      
       setAuthMsg({ text: "Erişim Sağlandı: Komuta Merkezine Aktarılıyor...", type: "success" });
       setTimeout(() => {
         setIsLoginModalOpen(false);
         setIsDashboardOpen(true);
-        setLoginEmail(""); 
-        setLoginPass(""); 
-        setAuthMsg({ text: "", type: "" });
+        setLoginEmail(""); setLoginPass(""); setAuthMsg({ text: "", type: "" });
       }, 1500);
     }
   };
@@ -271,8 +292,7 @@ export default function Home() {
 
     if (!updateError) {
       setAuthMsg({ text: "Şifreniz başarıyla değiştirildi. Giriş yapabilirsiniz.", type: "success" });
-      setResetEmail(""); 
-      setResetNewPass("");
+      setResetEmail(""); setResetNewPass("");
       setTimeout(() => { setAuthTab("login"); setAuthMsg({ text: "", type: "" }); }, 2000);
     } else {
       setAuthMsg({ text: "Şifre güncellenirken bir hata oluştu.", type: "error" });
@@ -309,10 +329,7 @@ export default function Home() {
 
     if (!error) {
       addLog(`[GÖREV] ${currentUser}, '${taskAssignee}' için yeni görev atadı: ${taskName} [${taskPriority}]`);
-      setTaskName(""); 
-      setTaskAssignee(""); 
-      setTaskDeadline(""); 
-      setTaskPriority("Normal");
+      setTaskName(""); setTaskAssignee(""); setTaskDeadline(""); setTaskPriority("Normal");
       fetchTasks();
     } else {
       console.error(error);
@@ -337,8 +354,7 @@ export default function Home() {
     }]);
     if (!error) {
       addLog(`[SİSTEM] ${currentUser}, '${sysNameInput}' sistemini ekledi. Durum: ${sysStatusInput}`);
-      setSysNameInput(""); 
-      setSysStatusInput("");
+      setSysNameInput(""); setSysStatusInput("");
       fetchSystemStatus();
     }
   };
@@ -372,6 +388,91 @@ export default function Home() {
   return (
     <>
       <div className="code-bg-overlay"></div>
+
+      {/* ============================================================================== */}
+      {/* PROFESYONEL SVG CAD MONTAJI (Scroll ile Birleşen Otonom Parçalar) */}
+      {/* ============================================================================== */}
+      <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
+        
+        {/* SOL: M.E.T.E. HROV (Su Altı Aracı) CAD Tel Kafes */}
+        <div style={{ position: "absolute", left: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
+          <svg viewBox="0 0 300 400" stroke="#36d1dc" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(54,209,220,0.6))" }}>
+            
+            {/* Gövde Şasisi (Yukarıdan aşağı iner) */}
+            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <rect x="100" y="100" width="100" height="200" rx="15" />
+              <line x1="100" y1="140" x2="200" y2="140" strokeDasharray="4 4" />
+              <line x1="100" y1="260" x2="200" y2="260" strokeDasharray="4 4" />
+              <circle cx="150" cy="200" r="30" strokeDasharray="2 4" />
+            </g>
+
+            {/* Kamera / Aydınlatma Modülü (Aşağıdan yukarı çıkar) */}
+            <g style={{ transform: `translate(0, ${150 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <path d="M 100 100 Q 150 40 200 100" />
+              <circle cx="150" cy="75" r="12" fill="rgba(54,209,220,0.2)" />
+              <line x1="150" y1="63" x2="150" y2="45" />
+            </g>
+
+            {/* Sol İtici Motor (Soldan sağa kayar ve döner) */}
+            <g style={{ transform: `translate(${-150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${-90 * (1 - scrollProgress)}deg)`, transformOrigin: "70px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="60" y="150" width="30" height="100" rx="5" />
+              <polygon points="60,250 90,250 95,280 55,280" />
+              <line x1="75" y1="250" x2="75" y2="280" />
+            </g>
+
+            {/* Sağ İtici Motor (Sağdan sola kayar ve döner) */}
+            <g style={{ transform: `translate(${150 * (1 - scrollProgress)}px, ${50 * (1 - scrollProgress)}px) rotate(${90 * (1 - scrollProgress)}deg)`, transformOrigin: "230px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="210" y="150" width="30" height="100" rx="5" />
+              <polygon points="210,250 240,250 245,280 205,280" />
+              <line x1="225" y1="250" x2="225" y2="280" />
+            </g>
+          </svg>
+        </div>
+
+        {/* SAĞ: MODEL UYDU CAD Tel Kafes */}
+        <div style={{ position: "absolute", right: "2%", top: "25%", width: "350px", height: "500px", opacity: 0.15 + (0.6 * scrollProgress) }}>
+          <svg viewBox="0 0 300 400" stroke="#ff5e62" fill="none" strokeWidth="2" style={{ filter: "drop-shadow(0 0 8px rgba(255,94,98,0.6))" }}>
+            
+            {/* Uydu Çekirdeği (Merkezde büyür) */}
+            <g style={{ transform: `scale(${1 + 1.5 * (1 - scrollProgress)})`, transformOrigin: "150px 200px", transition: "transform 0.1s ease-out" }}>
+              <polygon points="120,130 180,130 210,180 180,270 120,270 90,180" />
+              <circle cx="150" cy="200" r="25" fill="rgba(255,94,98,0.1)" />
+              <circle cx="150" cy="200" r="40" strokeDasharray="5 5" />
+            </g>
+
+            {/* İletişim Çanağı / Anten (Yukarıdan iner) */}
+            <g style={{ transform: `translate(0, ${-200 * (1 - scrollProgress)}px)`, transition: "transform 0.1s ease-out" }}>
+              <path d="M 90 110 Q 150 50 210 110" strokeDasharray="3 3" />
+              <line x1="150" y1="80" x2="150" y2="130" />
+              <circle cx="150" cy="80" r="5" />
+              <path d="M 120 70 Q 150 20 180 70" opacity="0.5" />
+            </g>
+
+            {/* Sol Güneş Paneli (Aşağıdan çapraz gelir) */}
+            <g style={{ transform: `translate(${-200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${-45 * (1 - scrollProgress)}deg)`, transformOrigin: "50px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="10" y="160" width="80" height="80" />
+              <line x1="36" y1="160" x2="36" y2="240" />
+              <line x1="62" y1="160" x2="62" y2="240" />
+              <line x1="10" y1="186" x2="90" y2="186" />
+              <line x1="10" y1="212" x2="90" y2="212" />
+              <line x1="90" y1="200" x2="120" y2="200" strokeWidth="4" />
+            </g>
+
+            {/* Sağ Güneş Paneli (Aşağıdan çapraz gelir) */}
+            <g style={{ transform: `translate(${200 * (1 - scrollProgress)}px, ${150 * (1 - scrollProgress)}px) rotate(${45 * (1 - scrollProgress)}deg)`, transformOrigin: "250px 200px", transition: "transform 0.1s ease-out" }}>
+              <rect x="210" y="160" width="80" height="80" />
+              <line x1="236" y1="160" x2="236" y2="240" />
+              <line x1="262" y1="160" x2="262" y2="240" />
+              <line x1="210" y1="186" x2="290" y2="186" />
+              <line x1="210" y1="212" x2="290" y2="212" />
+              <line x1="180" y1="200" x2="210" y2="200" strokeWidth="4" />
+            </g>
+          </svg>
+        </div>
+
+      </div>
+      {/* ============================================================================== */}
+
 
       <div style={{ display: isDashboardOpen || isAdminPanelOpen ? "none" : "block", position: "relative", zIndex: 1 }}>
         
@@ -414,9 +515,7 @@ export default function Home() {
           <div className="hero-container">
             <div className="terminal-window">
               <div className="terminal-header">
-                <span className="btn-close"></span>
-                <span className="btn-min"></span>
-                <span className="btn-max"></span>
+                <span className="btn-close"></span><span className="btn-min"></span><span className="btn-max"></span>
                 <span className="terminal-title">bash - root@mete-ddiat</span>
               </div>
               <div className="terminal-body">
@@ -439,25 +538,14 @@ export default function Home() {
               <h3>M.E.T.E.</h3>
               <h4 className="sub-title">Mühendislik Elektronik ve Teknoloji Ekibi</h4>
               <p>Donanım ve yazılımın sınırlarını zorlayan, çok disiplinli bir mühendislik gücüyüz. Geliştirdiğimiz otonom su altı araçları (HROV), insansız su üstü deniz sistemleri ve model uydu projeleri ile geleceğin otonom teknolojilerini uçtan uca kendimiz üretiyoruz.</p>
-              <div className="tech-stack">
-                <span>Python</span>
-                <span>C++</span>
-                <span>OpenCV</span>
-                <span>PyQt6</span>
-                <span>MATLAB</span>
-              </div>
+              <div className="tech-stack"><span>Python</span><span>C++</span><span>OpenCV</span><span>PyQt6</span><span>MATLAB</span></div>
             </div>
             <div className="about-card ddi-card">
               <i className="fa-solid fa-network-wired card-icon"></i>
               <h3>DDİAT</h3>
               <h4 className="sub-title">Akdeniz Doğal Dil İşleme ve Araştırma Topluluğu</h4>
               <p>Akdeniz Üniversitesi çatısı altında, makine öğrenmesi ve büyük dil modellerinin (LLM) akademik ve pratik uygulamalarına odaklanıyoruz. Semantik analiz, veri madenciliği ve Türkçe diline özgü yapay zeka mimarileri üzerine araştırmalar yürütüyoruz.</p>
-              <div className="tech-stack">
-                <span>PyTorch</span>
-                <span>FastAPI</span>
-                <span>LLM</span>
-                <span>NLP</span>
-              </div>
+              <div className="tech-stack"><span>PyTorch</span><span>FastAPI</span><span>LLM</span><span>NLP</span></div>
             </div>
           </div>
         </section>
@@ -489,10 +577,7 @@ export default function Home() {
                   <p>DDİAT yapay zeka etkinlikleri, araştırma duyuruları ve seminerler.</p>
                 </div>
               </div>
-              <div className="insta-footer">
-                <i className="fa-brands fa-instagram"></i>
-                <span className="btn-insta">Takip Et</span>
-              </div>
+              <div className="insta-footer"><i className="fa-brands fa-instagram"></i><span className="btn-insta">Takip Et</span></div>
             </a>
             <a href="https://www.instagram.com/mete.tech_team?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" className="insta-card">
               <div className="insta-overlay" style={{ background: "linear-gradient(135deg, rgba(255,94,98,0.9), rgba(0,0,0,0.85))" }}></div>
@@ -503,10 +588,7 @@ export default function Home() {
                   <p>Atölyeden anlık kareler, tasarım süreçleri ve mühendislik günlüklerimiz.</p>
                 </div>
               </div>
-              <div className="insta-footer">
-                <i className="fa-brands fa-instagram"></i>
-                <span className="btn-insta">Takip Et</span>
-              </div>
+              <div className="insta-footer"><i className="fa-brands fa-instagram"></i><span className="btn-insta">Takip Et</span></div>
             </a>
           </div>
         </section>
@@ -544,119 +626,45 @@ export default function Home() {
           </div>
         </section>
 
-
-        {/* ============================================================================== */}
-        {/* YENİ SİSTEM: %100 STATİK, GÖRSELDEKİ GİBİ KONUMLANDIRILMIŞ BLUEPRINT VE RENDER */}
-        {/* ============================================================================== */}
-        <section id="basvuru" style={{ position: "relative", minHeight: "1150px", padding: "120px 0 350px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
+        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
           
-          {/* Arkaplan Işık Efektleri */}
-          <div style={{ position: "absolute", top: "35%", left: "15%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
-          <div style={{ position: "absolute", top: "35%", right: "15%", transform: "translate(50%, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.15)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
-
-          {/* --- BİREBİR İSTENEN STATİK ARKA PLAN ÇİZİMLERİ VE ÇİZGİLER (Z-INDEX 0) --- */}
-          <div className="hide-on-mobile" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
-            
-            {/* SOL Blueprint (M.E.T.E.) */}
-            <div style={{ position: "absolute", left: "2%", top: "120px", width: "160px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(54, 209, 220, 0.4))" }}>
-              <svg viewBox="0 0 200 300" stroke="#36d1dc" fill="none" strokeWidth="2">
-                <path d="M50,100 C50,60 150,60 150,100" />
-                <circle cx="100" cy="70" r="10" />
-                <rect x="50" y="100" width="100" height="150" rx="10" />
-                <line x1="50" y1="130" x2="150" y2="130" strokeDasharray="6 6" />
-                <line x1="50" y1="220" x2="150" y2="220" strokeDasharray="6 6" />
-                <circle cx="100" cy="175" r="30" strokeDasharray="4 6" />
-                <rect x="20" y="140" width="20" height="80" rx="4" />
-                <rect x="160" y="140" width="20" height="80" rx="4" />
-                <path d="M20,220 L10,260 L40,260 L30,220 Z" />
-                <path d="M160,220 L150,260 L180,260 L170,220 Z" />
-                <line x1="100" y1="250" x2="100" y2="300" />
-              </svg>
-            </div>
-
-            {/* SAĞ Blueprint (DDİAT) */}
-            <div style={{ position: "absolute", right: "2%", top: "120px", width: "180px", opacity: 0.8, filter: "drop-shadow(0 0 5px rgba(255, 94, 98, 0.4))" }}>
-              <svg viewBox="0 0 240 300" stroke="#ff5e62" fill="none" strokeWidth="2">
-                <path d="M90,40 Q120,10 150,40" />
-                <circle cx="120" cy="50" r="5" />
-                <path d="M70,70 A 60 40 0 0 1 170,70" strokeDasharray="4 6" />
-                <line x1="120" y1="55" x2="120" y2="90" />
-                <polygon points="90,90 150,90 170,140 150,190 90,190 70,140" />
-                <circle cx="120" cy="140" r="25" />
-                <circle cx="120" cy="140" r="40" strokeDasharray="4 6" />
-                <rect x="10" y="110" width="60" height="60" />
-                <line x1="30" y1="110" x2="30" y2="170" />
-                <line x1="50" y1="110" x2="50" y2="170" />
-                <line x1="10" y1="130" x2="70" y2="130" />
-                <line x1="10" y1="150" x2="70" y2="150" />
-                <rect x="170" y="110" width="60" height="60" />
-                <line x1="190" y1="110" x2="190" y2="170" />
-                <line x1="210" y1="110" x2="210" y2="170" />
-                <line x1="170" y1="130" x2="230" y2="130" />
-                <line x1="170" y1="150" x2="230" y2="150" />
-                <line x1="120" y1="190" x2="120" y2="240" />
-              </svg>
-            </div>
-
-            {/* --- STATİK LAZER BAĞLANTI ÇİZGİLERİ (İSTENEN LOŞ VE ÇİFT YÖNLÜ HAREKET) --- */}
-            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0 }}>
-              
-              {/* Sol Mavi Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
-              <path 
-                d="M 10 18 L 10 65 L 32 82" 
-                stroke="rgba(54, 209, 220, 0.4)" strokeWidth="0.15" fill="none" 
-                style={{ filter: "drop-shadow(0 0 2px rgba(54, 209, 220, 0.5))" }} 
-              />
-              <circle cx="10" cy="18" r="0.3" fill="#36d1dc" />
-              <circle cx="10" cy="65" r="0.25" fill="rgba(54, 209, 220, 0.6)" />
-              <circle cx="32" cy="82" r="0.4" fill="#36d1dc" style={{ filter: "drop-shadow(0 0 4px #36d1dc)" }} />
-              
-              {/* Sağ Kırmızı Lazer Çizgisi (Çizimden formun altına, oradan birleşik görsele) */}
-              <path 
-                d="M 90 18 L 90 65 L 68 82" 
-                stroke="rgba(255, 94, 98, 0.4)" strokeWidth="0.15" fill="none" 
-                style={{ filter: "drop-shadow(0 0 2px rgba(255, 94, 98, 0.5))" }} 
-              />
-              <circle cx="90" cy="18" r="0.3" fill="#ff5e62" />
-              <circle cx="90" cy="65" r="0.25" fill="rgba(255, 94, 98, 0.6)" />
-              <circle cx="68" cy="82" r="0.4" fill="#ff5e62" style={{ filter: "drop-shadow(0 0 4px #ff5e62)" }} />
-            </svg>
-          </div>
-
-          {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU (Z-INDEX 10) */}
-          <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.9)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", borderRadius: "24px", padding: "50px 40px" }}>
+          <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
+          
+          <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div style={{ marginBottom: "40px", textAlign: "center" }}>
-              <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 15px rgba(255, 255, 255, 0.3)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
+              <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 20px rgba(54, 209, 220, 0.8)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
               <p style={{ color: "#a9a9bc", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
             </div>
             
             <form action="https://formspree.io/f/mnpawwdq" method="POST" style={{ position: "relative" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
                   <label style={{ color: "#888" }}>Ad Soyad</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
                   <label style={{ color: "#888" }}>E-Posta Adresi</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
                   <label style={{ color: "#888" }}>Telefon Numarası</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }} />
+                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
                   <label style={{ color: "#888" }}>Üniversite & Bölüm</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
+                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
                     <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option>
                     <option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option>
                     <option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option>
@@ -667,7 +675,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)", color: "#fff" }}>
+                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
                     <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option>
                     <option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option>
                     <option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
@@ -676,35 +684,17 @@ export default function Home() {
               </div>
 
               <div className="input-group" style={{ marginTop: "25px" }}>
-                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.05)" }}></textarea>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea>
                 <label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label>
               </div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
-              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                VERİLERİ İŞLE VE BAŞVUR // {">"}
-              </button>
+              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
             </form>
           </div>
-
-          {/* --- EN ALTTAKİ NİHAİ BİRLEŞİK RENDER GÖRSELİ (Daha büyük ve daha canlı) --- */}
-          <div className="hide-on-mobile" style={{ position: "absolute", bottom: "80px", left: "50%", transform: "translateX(-50%)", width: "95%", maxWidth: "1200px", zIndex: 5, pointerEvents: "none", display: "flex", justifyContent: "center" }}>
-            <img 
-              src="/assets/combined-render.png" 
-              alt="Birleşik Sistem Renderı" 
-              style={{ 
-                width: "100%", 
-                height: "auto", 
-                filter: "drop-shadow(0 0 40px rgba(54, 209, 220, 0.2)) drop-shadow(0 0 40px rgba(255, 94, 98, 0.2)) contrast(1.15) saturate(1.3) brightness(1.05)",
-                transform: "scale(1.05)"
-              }} 
-            />
-          </div>
-
         </section>
       </div>
 
-      {/* --- ÜYE PANELİ MODALI --- */}
       {isLoginModalOpen && (
         <div className="modal-overlay active">
           <div className="modal-box">
@@ -739,7 +729,6 @@ export default function Home() {
 
                 <button type="submit" className="btn-glow w-100">AĞA BAĞLAN</button>
                 {authMsg.text && <p className={`status-msg ${authMsg.type === 'error' ? 'text-red' : 'text-green'}`}>{authMsg.text}</p>}
-                
                 <div className="admin-note">
                   <i className="fa-solid fa-lock"></i>
                   <span>Sisteme giriş izniniz <b>Admin</b> tarafından doğrulanıp aktifleştirilmektedir.</span>
@@ -784,7 +773,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- GİZLİ ADMİN PANELİ --- */}
       {isAdminPanelOpen && (
         <div className="modal-overlay active" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="admin-dashboard" style={{ background: '#0a0a0f', padding: '2rem', borderRadius: '10px', width: '90%', maxWidth: '1000px', border: '1px solid var(--accent-red)' }}>
@@ -799,13 +787,7 @@ export default function Home() {
               <h3>Bekleyen Başvurular</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
-                  <thead>
-                    <tr>
-                      <th>İsim</th>
-                      <th>E-Posta</th>
-                      <th>İşlem</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'pending').map((user, idx) => (
                       <tr key={idx}>
@@ -814,23 +796,14 @@ export default function Home() {
                         <td><button className="btn-action btn-approve" onClick={() => changeUserStatus(user.email, 'approved')}>Ağa İzin Ver</button></td>
                       </tr>
                     ))}
-                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (
-                      <tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>
-                    )}
+                    {allUsersDB.filter(u => u.status === 'pending').length === 0 && (<tr><td colSpan={3} style={{color:'#666', textAlign: 'center', padding: '15px'}}>Bekleyen başvuru yok.</td></tr>)}
                   </tbody>
                 </table>
               </div>
-              
               <h3 style={{ marginTop: '40px' }}>Onaylı Üyeler</h3>
               <div className="table-container" style={{ maxHeight: "350px", overflowY: "auto" }}>
                 <table className="cyber-table">
-                  <thead>
-                    <tr>
-                      <th>İsim</th>
-                      <th>E-Posta</th>
-                      <th>İşlem</th>
-                    </tr>
-                  </thead>
+                  <thead><tr><th>İsim</th><th>E-Posta</th><th>İşlem</th></tr></thead>
                   <tbody>
                     {allUsersDB.filter(u => u.status === 'approved').map((user, idx) => (
                       <tr key={idx}>
@@ -847,13 +820,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- ÜYE KONTROL MERKEZİ (DASHBOARD) --- */}
       {isDashboardOpen && (
         <div className="dashboard-fullscreen" style={{ display: "block", position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "#09090b", zIndex: 9999, overflowY: "auto" }}>
           <div className="dash-navbar" style={{ padding: "20px", display: "flex", justifyContent: "space-between", background: "#121218", borderBottom: "1px solid #222" }}>
-            <div className="dash-brand">
-              <i className="fa-solid fa-terminal"></i> ROOT // KOMUTA MERKEZİ
-            </div>
+            <div className="dash-brand"><i className="fa-solid fa-terminal"></i> ROOT // KOMUTA MERKEZİ</div>
             <button className="btn-outline" onClick={handleLogout}>Ağdan Çık (Logout)</button>
           </div>
           
@@ -871,9 +841,7 @@ export default function Home() {
                   <div key={sys.id || idx} className="status-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #222' }}>
                     <div>
                       <span style={{ color: '#fff' }}>{sys.name}</span>
-                      <div style={{ marginTop: '5px' }}>
-                        <span className="pulse-dot"></span> {sys.status}
-                      </div>
+                      <div style={{ marginTop: '5px' }}><span className="pulse-dot"></span> {sys.status}</div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button className="btn-outline" style={{ padding: '4px 8px', fontSize: '0.75rem', borderColor: '#36d1dc', color: '#36d1dc' }} onClick={() => editSystemStatus(sys)}>Düzenle</button>
@@ -953,19 +921,13 @@ export default function Home() {
                       <tr key={task.id} style={{ borderTop: "1px solid #333" }}>
                         <td style={{ padding: "10px 0" }}>{task.name}</td>
                         <td>{task.assignee}</td>
-                        <td style={{ color: task.priority === 'Kritik' ? '#ff5e62' : task.priority === 'Düşük' ? '#888' : '#36d1dc' }}>
-                          {task.priority === 'Kritik' ? '🔴 Kritik' : task.priority === 'Düşük' ? '⚪ Düşük' : '🔵 Normal'}
-                        </td>
-                        <td style={{ color: isOverdue(task.deadline) ? '#ff5e62' : '#d1d5db', animation: isOverdue(task.deadline) ? 'pulse 1.5s infinite' : 'none' }}>
-                          {task.deadline ? new Date(task.deadline).toLocaleDateString('tr-TR') : '-'}
-                        </td>
+                        <td style={{ color: task.priority === 'Kritik' ? '#ff5e62' : task.priority === 'Düşük' ? '#888' : '#36d1dc' }}>{task.priority === 'Kritik' ? '🔴 Kritik' : task.priority === 'Düşük' ? '⚪ Düşük' : '🔵 Normal'}</td>
+                        <td style={{ color: isOverdue(task.deadline) ? '#ff5e62' : '#d1d5db', animation: isOverdue(task.deadline) ? 'pulse 1.5s infinite' : 'none' }}>{task.deadline ? new Date(task.deadline).toLocaleDateString('tr-TR') : '-'}</td>
                         <td style={{ color: task.status === 'Test Ediliyor' ? '#f59e0b' : '#36d1dc' }}>{task.status}</td>
                         <td><button className="btn-outline" onClick={() => completeTask(task.id)}>Tamamla</button></td>
                       </tr>
                     ))}
-                    {tasksDB.filter(t => !t.is_completed).length === 0 && (
-                      <tr><td colSpan={6} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>
-                    )}
+                    {tasksDB.filter(t => !t.is_completed).length === 0 && <tr><td colSpan={6} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Aktif görev bulunmuyor.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -988,9 +950,7 @@ export default function Home() {
                         <td className="text-green">{task.date_completed}</td>
                       </tr>
                     ))}
-                    {tasksDB.filter(t => t.is_completed).length === 0 && (
-                      <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>
-                    )}
+                    {tasksDB.filter(t => t.is_completed).length === 0 && <tr><td colSpan={3} style={{ color: '#666', textAlign: 'center', padding: '10px' }}>Henüz tamamlanan görev yok.</td></tr>}
                   </tbody>
                 </table>
               </div>
