@@ -494,9 +494,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Ortalanmış ve Dinamik) */}
-        <section id="basvuru" className="apply-section" style={{ display: "flex", justifyContent: "center", padding: "80px 20px" }}>
-          <div className="form-container" style={{ width: "100%", maxWidth: "850px", margin: "0 auto", background: "linear-gradient(145deg, rgba(15,15,20,0.95), rgba(10,10,12,0.95))", border: "1px solid rgba(54, 209, 220, 0.3)", boxShadow: "0 0 30px rgba(54, 209, 220, 0.05)", borderRadius: "16px", padding: "50px 30px" }}>
+        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Glassmorphism & Dinamik Arkaplan) */}
+        <section id="basvuru" className="apply-section" style={{ display: "flex", justifyContent: "center", padding: "100px 20px", background: "transparent", position: "relative" }}>
+          
+          {/* Arkadaki Dinamik Neon Parlama */}
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: "800px", height: "100%", maxHeight: "600px", background: "radial-gradient(circle, rgba(54, 209, 220, 0.05) 0%, rgba(255, 94, 98, 0.02) 50%, transparent 80%)", filter: "blur(60px)", zIndex: 0, pointerEvents: "none" }}></div>
+          
+          <div className="form-container" style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(10, 10, 15, 0.4)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(54, 209, 220, 0.15)", borderTop: "1px solid rgba(54, 209, 220, 0.4)", boxShadow: "0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
             <div className="form-header" style={{ marginBottom: "40px", textAlign: "center" }}>
               <h2 style={{ color: "var(--primary-glow)", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 10px 0" }}>Sisteme Katıl</h2>
