@@ -494,72 +494,73 @@ export default function Home() {
           </div>
         </section>
 
-        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Kesin Çalışan Glassmorphism) */}
-        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "100px 20px", overflow: "hidden", borderTop: "1px solid var(--border-color)", background: "#050505" }}>
+        {/* YAPAY ZEKA TEMALI YENİ BAŞVURU FORMU (Glassmorphism & Neon Aura) */}
+        <section id="basvuru" style={{ position: "relative", display: "flex", justifyContent: "center", padding: "120px 20px", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#050505" }}>
           
-          {/* Siber Grid (Izgara) ve Neon Parlama Efektleri */}
-          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(54, 209, 220, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(54, 209, 220, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
+          {/* Çok daha güçlü Neon Parlama Efektleri (Arkaplan) */}
+          <div style={{ position: "absolute", top: "50%", left: "30%", transform: "translate(-50%, -50%)", width: "400px", height: "400px", background: "rgba(54, 209, 220, 0.4)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translate(0, -50%)", width: "400px", height: "400px", background: "rgba(255, 94, 98, 0.3)", filter: "blur(120px)", zIndex: 0, pointerEvents: "none", borderRadius: "50%" }}></div>
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px", zIndex: 0 }}></div>
           
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "100%", maxWidth: "800px", height: "100%", maxHeight: "600px", background: "radial-gradient(circle, rgba(54, 209, 220, 0.15) 0%, rgba(255, 94, 98, 0.05) 50%, transparent 70%)", filter: "blur(60px)", zIndex: 0, pointerEvents: "none" }}></div>
-          
-          <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(15, 15, 20, 0.5)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: "1px solid rgba(54, 209, 220, 0.2)", borderTop: "1px solid rgba(54, 209, 220, 0.5)", boxShadow: "0 30px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
+          {/* className="form-container" KASITLI OLARAK SİLİNDİ - Eski CSS ezmesin diye */}
+          <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "850px", margin: "0 auto", background: "rgba(20, 20, 25, 0.45)", backdropFilter: "blur(25px)", WebkitBackdropFilter: "blur(25px)", border: "1px solid rgba(255, 255, 255, 0.1)", borderTop: "1px solid rgba(255, 255, 255, 0.2)", boxShadow: "0 25px 50px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)", borderRadius: "24px", padding: "50px 40px" }}>
             
-            <div className="form-header" style={{ marginBottom: "40px", textAlign: "center" }}>
-              <h2 style={{ color: "var(--primary-glow)", textTransform: "uppercase", letterSpacing: "2px", margin: "0 0 10px 0", textShadow: "0 0 15px rgba(54, 209, 220, 0.5)" }}>Sisteme Katıl</h2>
-              <p style={{ color: "var(--text-muted)", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
+            <div style={{ marginBottom: "40px", textAlign: "center" }}>
+              <h2 style={{ color: "#fff", textTransform: "uppercase", letterSpacing: "3px", margin: "0 0 10px 0", textShadow: "0 0 20px rgba(54, 209, 220, 0.8)", fontFamily: "var(--font-code)", fontSize: "2.2rem", fontWeight: "900" }}>SİSTEME KATIL</h2>
+              <p style={{ color: "#a9a9bc", fontSize: "1rem" }}>Yapay zeka ve mühendislik ağımıza entegre olmak için kimlik verilerinizi girin.</p>
             </div>
             
-            <form action="https://formspree.io/f/mnpawwdq" method="POST" className="cyber-form">
+            <form action="https://formspree.io/f/mnpawwdq" method="POST" style={{ position: "relative" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Ad_Soyad" required placeholder=" " />
-                  <label>Ad Soyad</label>
+                  <input type="text" name="Ad_Soyad" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Ad Soyad</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="email" name="E_Posta" required placeholder=" " />
-                  <label>E-Posta Adresi</label>
+                  <input type="email" name="E_Posta" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>E-Posta Adresi</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="tel" name="Telefon" required placeholder=" " />
-                  <label>Telefon Numarası</label>
+                  <input type="tel" name="Telefon" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Telefon Numarası</label>
                 </div>
                 <div className="input-group" style={{ marginBottom: "0" }}>
-                  <input type="text" name="Universite_Bolum" required placeholder=" " />
-                  <label>Üniversite & Bölüm</label>
+                  <input type="text" name="Universite_Bolum" required placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <label style={{ color: "#888" }}>Üniversite & Bölüm</label>
                 </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}>
-                    <option value="" disabled>Sınıfınızı Seçin</option>
-                    <option value="Hazırlık">Hazırlık</option>
-                    <option value="1. Sınıf">1. Sınıf</option>
-                    <option value="2. Sınıf">2. Sınıf</option>
-                    <option value="3. Sınıf">3. Sınıf</option>
-                    <option value="4. Sınıf">4. Sınıf</option>
-                    <option value="Yüksek Lisans / Mezun">Yüksek Lisans / Mezun</option>
+                  <select name="Sinif" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
+                    <option value="" disabled style={{ background: "#111" }}>Sınıfınızı Seçin</option>
+                    <option value="Hazırlık" style={{ background: "#111" }}>Hazırlık</option>
+                    <option value="1. Sınıf" style={{ background: "#111" }}>1. Sınıf</option>
+                    <option value="2. Sınıf" style={{ background: "#111" }}>2. Sınıf</option>
+                    <option value="3. Sınıf" style={{ background: "#111" }}>3. Sınıf</option>
+                    <option value="4. Sınıf" style={{ background: "#111" }}>4. Sınıf</option>
+                    <option value="Yüksek Lisans / Mezun" style={{ background: "#111" }}>Yüksek Lisans / Mezun</option>
                   </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}>
-                    <option value="" disabled>Hedef Ekip Seçin</option>
-                    <option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım)</option>
-                    <option value="DDİAT">DDİAT (Yapay Zeka)</option>
+                  <select name="Tercih_Edilen_Ekip" required defaultValue="" style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}>
+                    <option value="" disabled style={{ background: "#111" }}>Hedef Ekip Seçin</option>
+                    <option value="M.E.T.E." style={{ background: "#111" }}>M.E.T.E. (Donanım/Yazılım)</option>
+                    <option value="DDİAT" style={{ background: "#111" }}>DDİAT (Yapay Zeka)</option>
                   </select>
                 </div>
               </div>
 
               <div className="input-group" style={{ marginTop: "25px" }}>
-                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(18, 18, 24, 0.8)", backdropFilter: "blur(5px)" }}></textarea>
-                <label>Sisteme Katılım Amacınız & Becerileriniz</label>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" " style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}></textarea>
+                <label style={{ color: "#888" }}>Sisteme Katılım Amacınız & Becerileriniz</label>
               </div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
-              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "1.5px", background: "rgba(54, 209, 220, 0.1)", backdropFilter: "blur(5px)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
+              <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "2px", fontWeight: "bold", boxShadow: "0 0 20px rgba(54, 209, 220, 0.2)" }}>VERİLERİ İŞLE VE BAŞVUR // {">"}</button>
             </form>
           </div>
         </section>
