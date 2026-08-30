@@ -99,25 +99,11 @@ export default function Home() {
     }
   }, [isDashboardOpen]);
 
-  // YENİ NESİL ÇEVRİMİÇİ TAKİBİ (Sekme değişimi algılama)
+  // ÇEVRİMİÇİ/ÇEVRİMDIŞI KESİN ÇÖZÜMÜ (Mobil Uygulama Kapanma ve Sekme Değişimi)
   useEffect(() => {
     if (!currentUser || currentUser === "Admin") return;
 
-    const setOnlineStatus = (status: boolean) => {
-      supabase.from('users').update({ is_online: status }).eq('name', currentUser).then();
-    };
-
-    const handleVisibilityChange = () => {
-      // Kullanıcı başka sekmeye geçerse veya tarayıcıyı alta alırsa anında "Çevrimdışı" yap
-      if (document.visibilityState === 'hidden') {
-        setOnlineStatus(false);
-      } else {
-        setOnlineStatus(true);
-      }
-    };
-
-    const handleBeforeUnload = () => {
-      // Tarayıcı tamamen kapatılırken son bir çıkış sinyali
+    const updateOnlineStatus = (isOnline: boolean) => {
       const url = `${SUPABASE_URL}/rest/v1/users?name=eq.${encodeURIComponent(currentUser)}`;
       fetch(url, {
         method: 'PATCH',
@@ -127,19 +113,31 @@ export default function Home() {
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ is_online: false }),
-        keepalive: true
+        body: JSON.stringify({ is_online: isOnline }),
+        keepalive: true // Tarayıcı aniden kapansa bile sinyali yollar
       }).catch(() => {});
     };
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        updateOnlineStatus(false);
+      } else {
+        updateOnlineStatus(true);
+      }
+    };
+
+    const handleUnload = () => {
+      updateOnlineStatus(false);
+    };
+
     window.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("unload", handleBeforeUnload);
+    window.addEventListener("pagehide", handleUnload); // Mobil tarayıcılar için kritik
+    window.addEventListener("beforeunload", handleUnload);
 
     return () => {
       window.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("unload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handleUnload);
+      window.removeEventListener("beforeunload", handleUnload);
     };
   }, [currentUser]);
 
@@ -507,25 +505,52 @@ export default function Home() {
             
             <form action="https://formspree.io/f/mnpawwdq" method="POST" className="cyber-form">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Ad_Soyad" required placeholder=" " /><label>Ad Soyad</label></div>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="email" name="E_Posta" required placeholder=" " /><label>E-Posta Adresi</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="text" name="Ad_Soyad" required placeholder=" " />
+                  <label>Ad Soyad</label>
+                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="email" name="E_Posta" required placeholder=" " />
+                  <label>E-Posta Adresi</label>
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="tel" name="Telefon" required placeholder=" " /><label>Telefon Numarası</label></div>
-                <div className="input-group" style={{ marginBottom: "0" }}><input type="text" name="Universite_Bolum" required placeholder=" " /><label>Üniversite & Bölüm</label></div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="tel" name="Telefon" required placeholder=" " />
+                  <label>Telefon Numarası</label>
+                </div>
+                <div className="input-group" style={{ marginBottom: "0" }}>
+                  <input type="text" name="Universite_Bolum" required placeholder=" " />
+                  <label>Üniversite & Bölüm</label>
+                </div>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px", marginTop: "25px" }}>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Sinif" required defaultValue=""><option value="" disabled>Sınıfınızı Seçin</option><option value="Hazırlık">Hazırlık</option><option value="1. Sınıf">1. Sınıf</option><option value="2. Sınıf">2. Sınıf</option><option value="3. Sınıf">3. Sınıf</option><option value="4. Sınıf">4. Sınıf</option><option value="Yüksek Lisans / Mezun">Yüksek Lisans / Mezun</option></select>
+                  <select name="Sinif" required defaultValue="">
+                    <option value="" disabled>Sınıfınızı Seçin</option>
+                    <option value="Hazırlık">Hazırlık</option>
+                    <option value="1. Sınıf">1. Sınıf</option>
+                    <option value="2. Sınıf">2. Sınıf</option>
+                    <option value="3. Sınıf">3. Sınıf</option>
+                    <option value="4. Sınıf">4. Sınıf</option>
+                    <option value="Yüksek Lisans / Mezun">Yüksek Lisans / Mezun</option>
+                  </select>
                 </div>
                 <div className="input-group select-group" style={{ marginBottom: "0" }}>
-                  <select name="Tercih_Edilen_Ekip" required defaultValue=""><option value="" disabled>Hedef Ekip Seçin</option><option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım)</option><option value="DDİAT">DDİAT (Yapay Zeka)</option></select>
+                  <select name="Tercih_Edilen_Ekip" required defaultValue="">
+                    <option value="" disabled>Hedef Ekip Seçin</option>
+                    <option value="M.E.T.E.">M.E.T.E. (Donanım/Yazılım)</option>
+                    <option value="DDİAT">DDİAT (Yapay Zeka)</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="input-group" style={{ marginTop: "25px" }}><textarea name="Basvuru_Nedeni" required rows={4} placeholder=" "></textarea><label>Sisteme Katılım Amacınız & Becerileriniz</label></div>
+              <div className="input-group" style={{ marginTop: "25px" }}>
+                <textarea name="Basvuru_Nedeni" required rows={4} placeholder=" "></textarea>
+                <label>Sisteme Katılım Amacınız & Becerileriniz</label>
+              </div>
               
               <input type="hidden" name="_next" value="https://seninsiteninadresi.com" />
               <button type="submit" className="btn-glow w-100" style={{ padding: "18px", marginTop: "15px", letterSpacing: "1.5px" }}>VERİLERİ İŞLE VE BAŞVUR //{">"}</button>
@@ -534,9 +559,9 @@ export default function Home() {
         </section>
       </div>
 
-      {/* --- ÜYE PANELİ MODALI --- */}
+      {/* --- ÜYE PANELİ MODALI (BOŞLUĞA TIKLAYINCA KAPANMA İPTAL EDİLDİ) --- */}
       {isLoginModalOpen && (
-        <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) setIsLoginModalOpen(false) }}>
+        <div className="modal-overlay active">
           <div className="modal-box">
             <span className="close-modal" onClick={() => setIsLoginModalOpen(false)}>&times;</span>
             <div className="modal-header"><i className="fa-solid fa-shield-halved fa-2x"></i><h2>Gizli Ağ Erişimi</h2><p className="modal-desc">Sistem kaynaklarına erişim sağlamak için kimliğinizi doğrulayın.</p></div>
