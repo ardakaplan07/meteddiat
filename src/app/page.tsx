@@ -72,7 +72,7 @@ export default function Home() {
 
   // --- EFEKTLER (useEffect) ---
 
-  // Kaydırma Takibi (Lazer animasyonları için)
+  // Kusursuz Kaydırma Takibi (Görsellerin kayarak inmesi ve çizgiler için)
   useEffect(() => {
     const handleScroll = () => {
       const section = document.getElementById("basvuru");
@@ -81,11 +81,12 @@ export default function Home() {
         const windowHeight = window.innerHeight;
         const totalScroll = windowHeight + rect.height;
         const currentScroll = windowHeight - rect.top;
-        let progress = currentScroll / totalScroll;
-        progress = Math.max(0, Math.min(progress, 1));
         
-        // Animasyonu daha net görmek için biraz çarpan ekledik
-        setScrollProgress(progress * 1.5);
+        let progress = currentScroll / totalScroll;
+        // Scroll hassasiyetini artırarak parçaların tam formun hizasında birleşmesini sağlıyoruz
+        progress = Math.max(0, Math.min(progress * 1.5, 1)); 
+        
+        setScrollProgress(progress);
       }
     };
     
@@ -574,9 +575,9 @@ export default function Home() {
 
 
         {/* ============================================================================== */}
-        {/* YENİ BAŞVURU FORMU & BLUEPRINT (ŞEMA -> RENDER) BAĞLANTI SİSTEMİ */}
+        {/* YENİ SİSTEM: BLUEPRINT'TEN GERÇEĞE KAYARAK İNEN PARÇALAR (TAM İSTEDİĞİN GİBİ) */}
         {/* ============================================================================== */}
-        <section id="basvuru" style={{ position: "relative", minHeight: "1000px", padding: "120px 0 300px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
+        <section id="basvuru" style={{ position: "relative", minHeight: "1300px", padding: "120px 0 450px 0", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#08080c", backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)", backgroundSize: "40px 40px" }}>
           
           {/* ORTADAKİ GLASSMORPHISM BAŞVURU FORMU */}
           <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "800px", margin: "0 auto", background: "rgba(15, 15, 20, 0.8)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", border: "1px solid rgba(255, 255, 255, 0.05)", borderTop: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 25px 50px rgba(0,0,0,0.8)", borderRadius: "24px", padding: "50px 40px" }}>
@@ -642,11 +643,13 @@ export default function Home() {
             </form>
           </div>
 
-          {/* ================= ARKA PLAN ÇİZİMLERİ VE ÇİZGİLER (Z-INDEX 0) ================= */}
+          {/* ================= ARKA PLAN SİBER ANİMASYON KATMANI (Z-INDEX 0) ================= */}
           <div className="hide-on-mobile" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
             
-            {/* --- SOL TARAF (M.E.T.E. Su Altı Aracı Blueprint) --- */}
-            <div style={{ position: "absolute", left: "5%", top: "15%", width: "160px", opacity: 0.6, filter: "drop-shadow(0 0 10px rgba(54, 209, 220, 0.4))" }}>
+            {/* --- ADIM 1: SABİT TEKNİK ÇİZİMLER (BLUEPRINTS) EN ÜST KÖŞELERDE --- */}
+            
+            {/* SOL Blueprint (M.E.T.E.) */}
+            <div style={{ position: "absolute", left: "5%", top: "15%", width: "15%", opacity: 0.7, filter: "drop-shadow(0 0 10px rgba(54, 209, 220, 0.4))" }}>
               <svg viewBox="0 0 200 300" stroke="#36d1dc" fill="none" strokeWidth="3">
                 <path d="M50,100 C50,60 150,60 150,100" />
                 <circle cx="100" cy="70" r="10" />
@@ -662,8 +665,8 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* --- SAĞ TARAF (DDİAT Uydu Blueprint) --- */}
-            <div style={{ position: "absolute", right: "5%", top: "15%", width: "180px", opacity: 0.6, filter: "drop-shadow(0 0 10px rgba(255, 94, 98, 0.4))" }}>
+            {/* SAĞ Blueprint (DDİAT) */}
+            <div style={{ position: "absolute", right: "5%", top: "15%", width: "15%", opacity: 0.7, filter: "drop-shadow(0 0 10px rgba(255, 94, 98, 0.4))" }}>
               <svg viewBox="0 0 240 300" stroke="#ff5e62" fill="none" strokeWidth="3">
                 <path d="M90,40 Q120,10 150,40" />
                 <circle cx="120" cy="50" r="5" />
@@ -686,36 +689,70 @@ export default function Home() {
               </svg>
             </div>
 
-            {/* --- SCROLL İLE ÇİZİLEN LAZER BAĞLANTI ÇİZGİLERİ --- */}
-            <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+            {/* --- ADIM 2: SCROLL İLE ÇİZİLEN LAZER BAĞLANTI ÇİZGİLERİ --- */}
+            <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
               
-              {/* Sol Mavi Lazer Çizgisi (Çizimden alt görsele iner) */}
+              {/* Sol Mavi Lazer Çizgisi (Çizimden orta merkeze iner) */}
               <path 
-                d="M 12% 400 L 12% 550 L 30% 650 L 35% 650" 
-                stroke="#36d1dc" strokeWidth="2" fill="none" strokeDasharray="1500" 
+                d="M 125 350 L 125 600 L 350 850 L 500 850" 
+                stroke="#36d1dc" strokeWidth="2" vectorEffect="non-scaling-stroke" fill="none" strokeDasharray="1500" 
                 strokeDashoffset={1500 - (scrollProgress * 1500)} 
                 style={{ filter: "drop-shadow(0 0 5px #36d1dc)", transition: "stroke-dashoffset 0.1s ease-out" }} 
               />
               
-              {/* Sağ Kırmızı Lazer Çizgisi (Çizimden alt görsele iner) */}
+              {/* Sağ Kırmızı Lazer Çizgisi (Çizimden orta merkeze iner) */}
               <path 
-                d="M 88% 400 L 88% 550 L 70% 650 L 65% 650" 
-                stroke="#ff5e62" strokeWidth="2" fill="none" strokeDasharray="1500" 
+                d="M 875 350 L 875 600 L 650 850 L 500 850" 
+                stroke="#ff5e62" strokeWidth="2" vectorEffect="non-scaling-stroke" fill="none" strokeDasharray="1500" 
                 strokeDashoffset={1500 - (scrollProgress * 1500)} 
                 style={{ filter: "drop-shadow(0 0 5px #ff5e62)", transition: "stroke-dashoffset 0.1s ease-out" }} 
               />
             </svg>
 
-            {/* --- EN ALTTAKİ KOCAMAN BİRLEŞTİRİLMİŞ RENDER GÖRSELİ --- */}
-            {/* DİKKAT: Görselin adı "combined-render.png" olmalı ve public/assets/ içine atılmalı */}
-            <div style={{ position: "absolute", bottom: "30px", left: "50%", transform: "translateX(-50%)", width: "80%", maxWidth: "1000px", textAlign: "center" }}>
+            {/* --- ADIM 3: KAYARAK İNEN VE MERKEZDE BİRLEŞEN GÖRSELLER --- */}
+            {/* Ortak merkez toplanma alanı */}
+            <div style={{ position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", width: "90%", maxWidth: "1200px", height: "450px", display: "flex", justifyContent: "center", alignItems: "flex-end" }}>
+              
+              {/* SOL GÖRSEL: hrov-real.png (Yukarı ve soldan aşağı doğru kayar) */}
+              <img 
+                src="/assets/hrov-real.png" 
+                alt="" 
+                style={{ 
+                  position: "absolute", width: "50%", left: 0, bottom: 0, objectFit: "contain",
+                  transform: `translate(${-30 * (1 - scrollProgress)}vw, ${-800 * (1 - scrollProgress)}px)`, 
+                  opacity: scrollProgress > 0.95 ? 0 : 1, // Tam birleştiğinde yok olur, yerini son render'a bırakır
+                  transition: "transform 0.1s ease-out, opacity 0.2s ease-out",
+                  filter: "drop-shadow(0 0 20px rgba(54, 209, 220, 0.3))"
+                }} 
+              />
+              
+              {/* SAĞ GÖRSEL: satellite-real.png (Yukarı ve sağdan aşağı doğru kayar) */}
+              <img 
+                src="/assets/satellite-real.png" 
+                alt="" 
+                style={{ 
+                  position: "absolute", width: "50%", right: 0, bottom: 0, objectFit: "contain",
+                  transform: `translate(${30 * (1 - scrollProgress)}vw, ${-800 * (1 - scrollProgress)}px)`,
+                  opacity: scrollProgress > 0.95 ? 0 : 1, // Tam birleştiğinde yok olur
+                  transition: "transform 0.1s ease-out, opacity 0.2s ease-out",
+                  filter: "drop-shadow(0 0 20px rgba(255, 94, 98, 0.3))"
+                }} 
+              />
+              
+              {/* --- ADIM 4: 3. GÖRSELDEKİ NİHAİ SONUÇ (combined-render.png) --- */}
+              {/* Parçalar merkeze ulaştığında bu görsel parlayarak ortaya çıkar */}
               <img 
                 src="/assets/combined-render.png" 
-                alt="Birleştirilmiş Sistem Renderı" 
-                style={{ width: "100%", objectFit: "contain", opacity: scrollProgress > 0.4 ? 1 : 0.1, filter: "drop-shadow(0 0 30px rgba(255,255,255,0.1))", transition: "opacity 0.8s ease-out" }} 
+                alt="Birleştirilmiş Nihai Sistem" 
+                style={{
+                  position: "absolute", width: "100%", left: 0, bottom: 0, objectFit: "contain",
+                  opacity: scrollProgress > 0.95 ? 1 : 0, 
+                  filter: "drop-shadow(0 0 40px rgba(255,255,255,0.2))",
+                  transition: "opacity 0.4s ease-out"
+                }} 
               />
-            </div>
 
+            </div>
           </div>
         </section>
       </div>
